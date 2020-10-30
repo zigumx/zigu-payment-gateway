@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Inovio Payment Gateway WooCommerce Plugin
- * Description: Inovio payment gateway provide payment solutions.
- * Author: Inovio Payments
+ * Plugin Name: Zigu MX Payment Gateway WooCommerce Plugin
+ * Description: Zigu MX payment gateway provide payment solutions.
+ * Author: Zigu MX Payments
  * Version: 4.4.23
- * Author URI: https://inoviopay.com/
- * Plugin URI: https://www.inoviopay.com
+ * Author URI: https://zigu.mx/
+ * Plugin URI: https://www.zigu.mx
  * License: GPLv2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wporg
