@@ -25,7 +25,7 @@ class inovio_payment_shortcodes {
      * @return array
      */
     public function inovio_admin_setting_form( $form_type = "" ) {
-        $description = $form_type == "inoviodirect" ? "Pay with credit card Inovio payment gateway":"Pay with ACH inovio payment gateway";
+        $description = $form_type == "inoviodirect" ? "Pay with credit card Zigu MX payment gateway":"Pay with ACH Zigu MX payment gateway";
 
         $form = array(
             'enabled' => array(
@@ -52,7 +52,8 @@ class inovio_payment_shortcodes {
             'apiEndPoint' => array(
                 'title' => __( 'API End Point' ),
                 'type' => 'text',
-                'description' => __( 'Inovio Gateway API URL.' ),
+                'description' => __( 'Zigu MX Gateway API URL.' ),
+                'default' => 'https://api.zigu.mx/payment/pmt_service.cfm',
                 'custom_attributes' => array (
                     'required' => __( 'required' ),
                 ),
@@ -70,7 +71,7 @@ class inovio_payment_shortcodes {
             'req_username' => array (
                 'title' => __( 'API Username', 'woocommerce' ),
                 'type' => 'text',
-                'description' => __( 'Get your API credentials from Inovio.' ),
+                'description' => __( 'Get your API credentials from Zigu MX.' ),
                 'default' => '',
                 'desc_tip' => true,
                 'custom_attributes' => array (
@@ -80,7 +81,7 @@ class inovio_payment_shortcodes {
             'req_password' => array (
                 'title' => __( 'API Password' ),
                 'type' => 'password',
-                'description' => __( 'Get your API credentials from Inovio.' ),
+                'description' => __( 'Get your API credentials from Zigu MX.' ),
                 'default' => '',
                 'desc_tip' => true,
                 'custom_attributes' => array (
