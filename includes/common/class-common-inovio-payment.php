@@ -168,6 +168,7 @@ class class_common_inovio_payment {
         $order = new WC_Order( $order_id );
         $pmt_key_or_routing_number = [];
         $pmt_number = "";
+        $kountSessionId = $post_data['KOUNT_SESSIONID'];
         if ( !empty( $post_data["ach_inovio_routing_number"] ) && strlen( $post_data["ach_inovio_routing_number"] ) > 3 && $post_data["payment_method"] == "achinoviomethod" ) {
             $pmt_key_or_routing_number = ["bank_identifier" => wc_clean( $post_data["ach_inovio_routing_number"] )];
             $pmt_number = $post_data["ach_inovio_account_number"];
@@ -195,7 +196,8 @@ class class_common_inovio_payment {
             'ship_addr_state' => $order->get_shipping_state(),
             'ship_addr_zip' => $order->get_shipping_postcode(),
             'ship_addr' => $order->get_shipping_address_1() . ', ' . $order->get_shipping_address_2(),
-                ] + $pmt_key_or_routing_number;
+            'KOUNT_SESSIONID' => $kountSessionId,
+        ] + $pmt_key_or_routing_number;
         if( $post_data["payment_method"] == "achinoviomethod" ){
             unset( $params["pmt_expiry"] );
         }

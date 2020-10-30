@@ -267,8 +267,15 @@ class inovio_payment_shortcodes {
                         name="inoviodirectmethod_gate_card_cvv" maxlength="4" size="4" pattern="[0-9]+" required
                     />
                 </p>
-                <div class="clear"></div>
-            </fieldset>';
+                <div class="clear"></div>';
+        $html .= '<p class="form-row form-row-last" style="display: none;">
+                <label for="inoviodirectmethod_gate_card_csc">Kount Session ID</label>
+                <input type="text" class="input-text" id="kountSessionId"
+                    title="Kount Session ID" name="KOUNT_SESSIONID"
+                />
+            </p>
+            <div class="clear"></div>
+        </fieldset>';
         return $html;
     }
 
