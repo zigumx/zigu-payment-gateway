@@ -65,7 +65,7 @@ function Woocommerce_Inovio_init() {
 }
 
 // Hook to add custom checkout field: woocommerce_review_order_before_submit
-    add_action( 'woocommerce_review_order_before_submit', 'my_custom_checkout_field' );
+    // add_action( 'woocommerce_review_order_before_submit', 'my_custom_checkout_field' );
     /**
      * Add custom checkout field: woocommerce_review_order_before_submit
      *
