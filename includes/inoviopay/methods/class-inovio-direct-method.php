@@ -284,13 +284,13 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $card_cvc = !empty( wc_clean( $_POST['inoviodirectmethod_gate_card_cvv'] ) ) ? wc_clean( $_POST['inoviodirectmethod_gate_card_cvv'] ) : '';
         try {
             if ( empty( $card_number ) ) {
-                throw new Exception( __( 'Please Enter Card number', $this->id ) );
+                throw new Exception( __( 'Favor de ingresar el número de tarjeta', $this->id ) );
             } elseif ( empty( $expiry_month ) || empty( $expiry_year ) ) {
-                throw new Exception( __( 'Please Enter Card expiration date', $this->id ) );
+                throw new Exception( __( 'Favor de ingresar la fecha de expiración', $this->id ) );
             } elseif ( $this->common_class->validate_expirydate( $expiry_year . $expiry_month) == false ) {
-                throw new Exception( __( 'Invalid Credit Card Expiration date', $this->id ) );
+                throw new Exception( __( 'Favor de ingresar la fecha de expiración', $this->id ) );
             } elseif ( empty( $card_cvc ) ) { // check expiry date
-                throw new Exception( __( 'Please Enter Card CVV number', $this->id ) );
+                throw new Exception( __( 'Favor de ingresar el código de seguridad', $this->id ) );
             }
             // Restrict product's quantity
             if ( $this->common_class->restrict_quantity( $this ) == false ) {
