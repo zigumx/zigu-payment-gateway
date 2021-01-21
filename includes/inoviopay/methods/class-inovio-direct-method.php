@@ -149,8 +149,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
             if ($this->debug == 'yes') :
                 // Add log
-                $this->inovio_logger( 'Transaction Failed', $this );
-                $this->inovio_logger( $response, $this );
+                $this->common_class->inovio_logger( 'Transaction Failed', $this );
+                $this->common_class->inovio_logger( $response, $this );
             endif;
             die();
         }
@@ -213,7 +213,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             
         } else {
             $order->add_order_note( 'Order already refunded or something went wrong' );
-            $this->inovio_logger( $response, $this );
+            $this->common_class->inovio_logger( $response, $this );
             return false;
         }
     }
@@ -350,7 +350,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     $thankyou_msg = 'Transaction has been completed successfully.';
 
                     // Add order note
-                    $order->add_order_note( ' Billing Direct API Payment completed and Transaction Id:' . $parse_result->PO_ID );
+                    $order->add_order_note( ' Billing Direct API Payment completed and Order Id:' . $parse_result->PO_ID );
                     add_post_meta( $order->id, '_inoviotransaction_id', $parse_result->PO_ID, true );
                     // Payment complete add PO_ID as transaction id in post_meta table
                     $order->payment_complete( $parse_result->PO_ID );
@@ -378,18 +378,18 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     $status = 'ERROR';
 
                     // Add note
-                    $order->add_order_note(sprintf( __( 'TransactionID %s', 'wc_iveri'), $parse_result->PO_ID ) );
-                    add_post_meta( $order_id, '_inoviotransaction_id', $parse_result->PO_ID, true );
+                    $order->add_order_note(sprintf( __( 'Transaction Failed, TransactionID: %s', 'wc_iveri'), $parse_result->TRANS_ID ) );
+                    add_post_meta( $order_id, '_inoviotransaction_id', $parse_result->TRANS_ID, true );
 
                     // Payment failed
-                    $order->update_status( 'failed', sprintf( __( 'Card payment failed. Payment was rejected due to an error%s', $this->id ) ) );
+                    $order->update_status( 'failed', sprintf( __( 'Card payment failed. Payment was rejected due to an errors', $this->id ) ) );
 
                     // Remove cart
                     $woocommerce->cart->empty_cart();
                     if ( $this->debug == 'yes' ) :
                         // Add log
-                        $this->inovio_logger( 'Transaction Failed', $this );
-                        $this->inovio_logger( $response, $this );
+                        $this->common_class->inovio_logger( 'Transaction Failed', $this );
+                        $this->common_class->inovio_logger( $response, $this );
                     endif;
 
                     throw new Exception(
