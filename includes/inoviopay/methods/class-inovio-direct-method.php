@@ -377,15 +377,268 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 } elseif ( !empty( $parse_result->API_ADVICE ) || empty( $parse_result->SERVICE_ADVICE ) ) {
                     $status = 'ERROR';
 
+                    // $parse_result->SERVICE_RESPONSE;
+                    $estado_error = "";
+                    if ($parse_result->PROCESSOR_RESPONSE != 0) {
+                        switch ($parse_result->PROCESSOR_RESPONSE) {
+                            case "0": 
+                                $estado_error = "APROBADA";
+                                break;
+                            case "2": 
+                                $estado_error = "DECLINADA: favor de contactar a su banco";
+                                break;
+                            case "4": 
+                                $estado_error = "DECLINADA: tarjeta bloqueada por el banco emisor";
+                                break;
+                            case "5": 
+                                $estado_error = "DECLINADA: por el banco emisor";
+                                break;
+                            case "12": 
+                                $estado_error = "DECLINADA: Transacción inválida";
+                                break;
+                            case "14": 
+                                $estado_error = "DECLINADA: número de tarjeta no válido";
+                                break;
+                            case "41": 
+                                $estado_error = "DECLINADA: tarjeta reportada como perdida";
+                                break;
+                            case "43": 
+                                $estado_error = "DECLINADA: tarjeta reportada como robada";
+                                break;
+                            case "51": 
+                                $estado_error = "DECLINADA: fondos insuficientes";
+                                break;
+                            case "54": 
+                                $estado_error = "DECLINADA: tarjeta caducada";
+                                break;
+                            case "56": 
+                                $estado_error = "DECLINADA: tarjeta no registrada";
+                                break;
+                            case "57": 
+                                $estado_error = "DECLINADA: transacción no permitida por la tarjeta";
+                                break;
+                            case "61": 
+                                $estado_error = "DECLINADA: transacción excede el límite permitido por su tarjeta";
+                                break;
+                            case "62": 
+                                $estado_error = "DECLINADA: tarjeta restringida";
+                                break;
+                            case "65": 
+                                $estado_error = "DECLINADA: transacción excede la frecuencia permitida por su tarjeta";
+                                break;
+                            case "82": 
+                                $estado_error = "DECLINADA: transacción detenida por el módulo de seguridad de su tarjeta";
+                                break;
+                            case "87": 
+                                $estado_error = "DECLINADA: datos inválidos";
+                                break;
+                            case "89": 
+                                $estado_error = "DECLINADA: servicio inválido";
+                                break;
+                            case "91": 
+                                $estado_error = "DECLINADA: no se logró contactar al banco emisor";
+                                break;
+                            case "N0": 
+                                $estado_error = "DECLINADA: no fue posible autorizar la transacción";
+                                break;
+                            case "N7": 
+                                $estado_error = "DECLINADA: transacción no autorizada por el banco emisor de la tarjeta";
+                                break;
+                            case "O6": 
+                                $estado_error = "DECLINADA: datos inválidos";
+                                break;
+                            case "P1": 
+                                $estado_error = "DECLINADA: transacción excede el límite permitido por su tarjeta";
+                                break;
+                            case "Q2": 
+                                $estado_error = "DECLINADA: transacción no permitida por la tarjeta";
+                                break;
+                        }
+                    } else {
+                        switch ($parse_result->SERVICE_RESPONSE) {
+                            case "100":
+                                $estado_error = "Autorizada";
+                                break;
+                            case "101":
+                                $estado_error = "Servicio disponible";
+                                break;
+                            case "150":
+                                $estado_error = "Producto no encontrado";
+                                break;
+                            case "152":
+                                $estado_error = "Tipo de producto no encontrado";
+                                break;
+                            case "155":
+                                $estado_error = "Divisa no configurada";
+                                break;
+                            case "190":
+                                $estado_error = "Configuración inválida de producto";
+                                break;
+                            case "192":
+                                $estado_error = "Producto no activo";
+                                break;
+                            case "500":
+                                $estado_error = "No tiene cuenta configurada";
+                                break;
+                            case "501":
+                                $estado_error = "Cliente no encontrado";
+                                break;
+                            case "502":
+                                $estado_error = "Error en la transacción";
+                                break;
+                            case "503":
+                                $estado_error = "Servicio no disponible";
+                                break;
+                            case "505":
+                                $estado_error = "Orden ajustada a cero";
+                                break;
+                            case "506":
+                                $estado_error = "Monto a cobrar mayor al monto de la orden";
+                                break;
+                            case "507":
+                                $estado_error = "Orden capturada completa";
+                                break;
+                            case "510":
+                                $estado_error = "Orden devuelta";
+                                break;
+                            case "511":
+                                $estado_error = "Orden reportada como contra-cargo";
+                                break;
+                            case "512":
+                                $estado_error = "Orden no encontrada";
+                                break;
+                            case "515":
+                                $estado_error = "Orden reembolsada";
+                                break;
+                            case "516":
+                                $estado_error = "Reembolso mayor al valor de la orden";
+                                break;
+                            case "518":
+                                $estado_error = "Missing required field";
+                                break;
+                            case "519":
+                                $estado_error = "Missing Trial Descriptor";
+                                break;
+                            case "520":
+                                $estado_error = "Divisa no aceptada";
+                                break;
+                            case "522":
+                                $estado_error = "Marca de tarjeta no aceptada";
+                                break;
+                            case "525":
+                                $estado_error = "Batch Closed: Please credit";
+                                break;
+                            case "530":
+                                $estado_error = "Downstream Processor Unavailable";
+                                break;
+                            case "536":
+                                $estado_error = "Order not settled: Please reverse";
+                                break;
+                            case "555":
+                                $estado_error = "Call Center";
+                                break;
+                            case "560":
+                                $estado_error = "Invalid Service Action";
+                                break;
+                            case "565":
+                                $estado_error = "Monto no válido";
+                                break;
+                            case "570":
+                                $estado_error = "Marca de tarjeta no válida";
+                                break;
+                            case "580":
+                                $estado_error = "Solicitud no admitida";
+                                break;
+                            case "600":
+                                $estado_error = "Declinada por el banco emisor. Favor de contactar a su banco.";
+                                break;
+                            case "601":
+                                $estado_error = "Transacción detenida por módulo anti-fraude. Esta tarjeta está temporalmente bloqueada en este sitio, intente nuevamente mañana.";
+                                break;
+                            case "603":
+                                $estado_error = "Transacción fraudulenta";
+                                break;
+                            case "605":
+                                $estado_error = "Tarjeta reportada como robada";
+                                break;
+                            case "610":
+                                $estado_error = "Recoger tarjeta";
+                                break;
+                            case "615":
+                                $estado_error = "Tarjeta reportada como perdida";
+                                break;
+                            case "620":
+                                $estado_error = "CVV inválido";
+                                break;
+                            case "621":
+                                $estado_error = "CVV fallido";
+                                break;
+                            case "622":
+                                $estado_error = "Validación de dirección fallida";
+                                break;
+                            case "623":
+                                $estado_error = "Validación de dirección fallida";
+                                break;
+                            case "624":
+                                $estado_error = "Tarjeta vencida";
+                                break;
+                            case "625":
+                                $estado_error = "Uso excesivo";
+                                break;
+                            case "630":
+                                $estado_error = "Número de tarjeta inválido";
+                                break;
+                            case "635":
+                                $estado_error = "Fondos insuficientes";
+                                break;
+                            case "640":
+                                $estado_error = "Reintentar";
+                                break;
+                            case "650":
+                                $estado_error = "RECHAZADA - No intente nuevamente";
+                                break;
+                            case "660":
+                                $estado_error = "Aprobación parcial";
+                                break;
+                            case "680":
+                                $estado_error = "Transacción duplicada";
+                                break;
+                            case "685":
+                                $estado_error = "Orden duplicada";
+                                break;
+                            case "690":
+                                $estado_error = "Active Membership Exists";
+                                break;
+                            case "692":
+                                $estado_error = "Invalid Rebill Product";
+                                break;
+                            case "695":
+                                $estado_error = "Site Username Unavailable";
+                                break;
+                            case "697":
+                                $estado_error = "Membresía no activa";
+                                break;
+    
+                            case "698":
+                                $estado_error = "Membresía no encontrada";
+                                break;
+                            case "699":
+                                $estado_error = "Membresía no está configurada como suscripción";
+                                break;
+                        }
+                    }
+                    
+                    
+
                     // Add note
-                    $order->add_order_note(sprintf( __( 'Transaction Failed, TransactionID: %s', 'wc_iveri'), $parse_result->TRANS_ID ) );
+                    $order->add_order_note(sprintf( __( 'Transaction Failed, TransactionID: %s, Estado: %s', 'wc_iveri'), $parse_result->TRANS_ID, $estado_error ) );
                     add_post_meta( $order_id, '_inoviotransaction_id', $parse_result->TRANS_ID, true );
 
                     // Payment failed
                     $order->update_status( 'failed', sprintf( __( 'Card payment failed. Payment was rejected due to an errors', $this->id ) ) );
 
-                    // Remove cart
-                    $woocommerce->cart->empty_cart();
+                    // // Remove cart
+                    // $woocommerce->cart->empty_cart();
                     if ( $this->debug == 'yes' ) :
                         // Add log
                         $this->common_class->inovio_logger( 'Transaction Failed', $this );
@@ -393,10 +646,10 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     endif;
 
                     throw new Exception(
-                    __(
-                        'Something went wrong, please contact to your '
-                        . 'service provider.', $this->id
-                    )
+                        __(
+                            'Transacción fallida, estado de la transacción: '. $estado_error
+                            , $this->id
+                        )
                     );
                 }
             }
