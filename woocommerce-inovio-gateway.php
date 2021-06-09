@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Zigu MX Payment Gateway WooCommerce Plugin
+ * Plugin Name: Zigu MX Payment Gateway
  * Description: Zigu MX payment gateway provide payment solutions.
  * Author: Zigu MX Payments
  * Version: 4.4.23
