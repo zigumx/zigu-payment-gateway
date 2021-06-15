@@ -11,7 +11,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: wporg
 Domain Path: /languages
 Requires at least: 5.0
-Tested up to: 5.6
+Tested up to: 5.7.2
 Requires PHP: 5.2.4
 Stable tag: 4.4.23
 
