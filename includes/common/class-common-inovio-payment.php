@@ -80,6 +80,31 @@ class class_common_inovio_payment {
     }
 
     /**
+     * Use to authorize merchant
+     *
+     * @return boolean
+     */
+    public function merchant_authorization_amex( $options ) {
+        $service_config = new InovioServiceConfig( $this->merchant_credential_amex( $options ) );
+        $processor = new InovioProcessor( $service_config );
+        // authorize user
+        $response = $processor->set_methodname( 'authenticate_amex' )->get_response();
+        // decode json data into object
+        $parse_result = json_decode( $response );
+        // Getting Service response
+        if ( 100 != $parse_result->SERVICE_RESPONSE ) {
+            if ( $options->debug == 'yes' ) :
+                $this->inovio_logger( 'Authentication Failed' );
+                $this->inovio_logger( $response );
+            endif;
+
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * use to set merchant related Parameters
      *
      * @return array $requestParams
@@ -90,6 +115,33 @@ class class_common_inovio_payment {
             'site_id' => $options->site_id,
             'req_username' => $options->req_username,
             'req_password' => $options->req_password,
+        ];
+        $final_request_params = [];
+        foreach ( $request_params as $reqKey => $reqParamVal ) {
+            if ( empty( $request_params[$reqKey] ) ) {
+                throw new Exception(
+                __(
+                        'Something went wrong, please contact to your service provider'
+                )
+                );
+            }
+            $final_request_params[$reqKey] = trim($reqParamVal);
+        }
+        return $final_request_params;
+    }
+
+    /**
+     * use to set merchant related Parameters
+     *
+     * @return array $requestParams
+     */
+    public function merchant_credential_amex( $options ) {
+        $request_params = [
+            'end_point' => 'https://gateway2.zigu.mx/rest/v1/4.1',
+            'site_id' => $options->site_id,
+            'req_username' => $options->req_username,
+            'req_password' => $options->req_password,
+            'request_response_format' => 'JSON'
         ];
         $final_request_params = [];
         foreach ( $request_params as $reqKey => $reqParamVal ) {
