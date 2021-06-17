@@ -315,7 +315,14 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             // throw new Exception('test '.$isAmex);
 
             // merchant authentication
-            if ( $this->common_class->merchant_authorization_amex( $this ) == false ) {
+            $isAuth = false;
+            if ($isAmex) {
+                $isAuth = $this->common_class->merchant_authorization_amex( $this );
+            } else {
+                $isAuth = $this->common_class->merchant_authorization( $this );
+            }
+            if ( $isAuth == false ) {
+                // throw new Exception('Usuario no autorizado'); 
                 throw new Exception( __( 'Please contact to service provider', $this->id ) );
             } else {
                 // throw new Exception('autorizado');
