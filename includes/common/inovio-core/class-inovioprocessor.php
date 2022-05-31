@@ -84,6 +84,16 @@ class InovioProcessor {
     }
 
     /**
+     * Verify the card detail and address detail of customer
+     */
+    private function authenticate_amex() {
+        $this->requestparams['request_action'] = 'TESTAUTH';
+        $response = $this->service_config->execute_call( $this->requestparams );
+
+        return $this->service_config->filter_response( $response, [] );
+    }
+
+    /**
      * Check if Payment Service is available to process requests.
      */
     private function service_availability() {

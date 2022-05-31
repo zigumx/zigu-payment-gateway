@@ -305,14 +305,37 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 );
             }
 
+            // echo $card_number;
+            $pattern = "/^(3[47]\d{13})$/";
+            $isAmex = false;
+            if (preg_match($pattern, $card_number)) {
+                $isAmex = true;
+                // throw new Exception('is Amex');
+            }
+            // throw new Exception('test '.$isAmex);
+
             // merchant authentication
-            if ( $this->common_class->merchant_authorization( $this ) == false ) {
+            $isAuth = false;
+            if ($isAmex) {
+                $isAuth = $this->common_class->merchant_authorization_amex( $this );
+            } else {
+                $isAuth = $this->common_class->merchant_authorization( $this );
+            }
+            if ( $isAuth == false ) {
+                // throw new Exception('Usuario no autorizado'); 
                 throw new Exception( __( 'Please contact to service provider', $this->id ) );
             } else {
+                // throw new Exception('autorizado');
                 $sanitize_post = wc_clean( $_POST );
                 $order_param = $this->common_class->get_order_params( $order_id, $sanitize_post, $expiry_month.$expiry_year );
                 // Combine array parameters to call auth_and_capture
-                $params = array_merge( $this->common_class->merchant_credential( $this ), $order_param, 
+                $authParams = [];
+                if ($isAmex) {
+                    $authParams = $this->common_class->merchant_credential_amex( $this );
+                } else {
+                    $authParams = $this->common_class->merchant_credential( $this );
+                }
+                $params = array_merge( $authParams, $order_param, 
                     $this->common_class->get_product_ids( $order, $this )
                 );
                 $final_params = $params + $this->common_class->get_advaceparam($this);
@@ -331,6 +354,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 update_post_meta( $order->id, 'TRANS_ID', $parse_result->TRANS_ID );
                 update_post_meta( $order->get_id(), '_inovio_gateway_scheduled_first_response', json_encode( $parse_result ) );
                 
+                // throw new Exception($response);
+
                 // check card length
                 if ( isset( $parse_result->REF_FIELD ) && 'pmt_numb' == strtolower( $parse_result->REF_FIELD ) ) {
                     throw new Exception( __( 'Error Invalid Credit Card Length', $this->id ) );
@@ -340,6 +365,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 if ( isset( $parse_result->REF_FIELD ) && 'pmt_expiry' == strtolower( $parse_result->REF_FIELD ) ) {
                     throw new Exception( __( 'Error Invalid Card Expiry date', $this->id ) );
                 }
+                // throw new Exception($response);
+                // throw new Exception('pre '.$parse_result->TRANS_STATUS_NAME.isset( $parse_result->TRANS_STATUS_NAME ));
                 if (
                         isset( $parse_result->TRANS_STATUS_NAME ) &&
                         'APPROVED' == $parse_result->TRANS_STATUS_NAME &&
@@ -374,8 +401,9 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                         'result' => 'success',
                         'redirect' => $this->get_return_url( $order ),
                     );
-                } elseif ( !empty( $parse_result->API_ADVICE ) || empty( $parse_result->SERVICE_ADVICE ) ) {
+                } elseif ( !empty( $parse_result->API_ADVICE ) || !empty( $parse_result->SERVICE_ADVICE ) ) {
                     $status = 'ERROR';
+                    // throw new Exception('error');
 
                     // $parse_result->SERVICE_RESPONSE;
                     $estado_error = "";
@@ -644,6 +672,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                         $this->common_class->inovio_logger( 'Transaction Failed', $this );
                         $this->common_class->inovio_logger( $response, $this );
                     endif;
+
+                    // throw new Exception($response);
 
                     throw new Exception(
                         __(
