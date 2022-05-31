@@ -3,7 +3,7 @@
  * Plugin Name: Zigu MX Payment Gateway
  * Description: Zigu MX payment gateway provide payment solutions.
  * Author: Zigu MX Payments
- * Version: 5.0.0
+ * Version: 6.0.0
  * Author URI: https://zigu.mx/
  * Plugin URI: https://www.zigu.mx
  * License: GPLv2
@@ -20,7 +20,7 @@ add_action( 'plugins_loaded', 'Woocommerce_Inovio_init',11 );
 require plugin_dir_path( __FILE__ ) . 'includes/installer/inovio-plugin-database-table.php';
 // Create table for refund on activate inovio plugin
 register_activation_hook( __FILE__, 'create_inovio_plugin_database_table' );
-register_activation_hook( __FILE__, 'create_ach_inovio_plugin_database_table' );
+// register_activation_hook( __FILE__, 'create_ach_inovio_plugin_database_table' );
 require plugin_dir_path( __FILE__ ) . 'includes/common/class-common-inovio-payment.php';
 
 /**
@@ -61,7 +61,7 @@ function Woocommerce_Inovio_init() {
 // Inovio payment gateway
     include plugin_dir_path( __FILE__ ) . 'includes/inoviopay/woocommerce-inovio-gateway.php';
 // Inovio ach payment gateway
-    include plugin_dir_path( __FILE__ ) . 'includes/ach/class-woocommerce-ach-inovio-gateway.php';
+    // include plugin_dir_path( __FILE__ ) . 'includes/ach/class-woocommerce-ach-inovio-gateway.php';
 }
 
 // Hook to add custom checkout field: woocommerce_review_order_before_submit

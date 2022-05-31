@@ -16,7 +16,7 @@ class inovio_payment_shortcodes {
 // Load hooks into constructor
     public function __construct() {
         add_shortcode( 'direct_checkoutform', array( $this, 'inoviodirect_checkout_form' ) );
-        add_shortcode( 'ach_inovio_checkoutform', array( $this, 'ach_inovio_checkout_form' ) );
+        // add_shortcode( 'ach_inovio_checkoutform', array( $this, 'ach_inovio_checkout_form' ) );
     }
 
     /**
@@ -230,6 +230,9 @@ class inovio_payment_shortcodes {
      * @return string $html
      */
     public function inoviodirect_checkout_form() {
+        global $woocommerce;
+        $order_price_cents = $woocommerce->cart->total * 100;
+        echo $order_price_cents;
         $today = date( 'Y' );
         $start = date( 'Y' );
         $html = '<fieldset class="inoviodirectmethod_gate_form">

@@ -21,8 +21,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         // Enter a URL to an image
         $this->icon = plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/img/inovio-logo.png';
 
-        $this->method_title = 'Inovio';
-	    $this->method_description = 'Pay with credit card Inovio payment gateway'; 
+        $this->method_title = 'Zigu';
+	    $this->method_description = 'Pay with credit card Zigu payment gateway'; 
         $this->supports = array ( 'products',
                                 'refunds',
                                 'subscriptions',
