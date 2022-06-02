@@ -69,8 +69,8 @@ class class_common_inovio_payment {
         // Getting Service response
         if ( 100 != $parse_result->SERVICE_RESPONSE ) {
             if ( $options->debug == 'yes' ) :
-                $this->inovio_logger( 'Authentication Failed' );
-                $this->inovio_logger( $response );
+                $this->inovio_logger( 'Authentication Failed', $this);
+                $this->inovio_logger( $response, $this);
             endif;
 
             return false;
@@ -94,8 +94,8 @@ class class_common_inovio_payment {
         // Getting Service response
         if ( 100 != $parse_result->SERVICE_RESPONSE ) {
             if ( $options->debug == 'yes' ) :
-                $this->inovio_logger( 'Authentication Failed' );
-                $this->inovio_logger( $response );
+                $this->inovio_logger( 'Authentication Failed', $this);
+                $this->inovio_logger( $response, $this);
             endif;
 
             return false;
@@ -219,6 +219,7 @@ class class_common_inovio_payment {
     public function get_order_params( $order_id, $post_data, $expiry_date = "" ) {
         $order = new WC_Order( $order_id );
         $pmt_key_or_routing_number = [];
+        $three_ds = [];
         $pmt_number = "";
         $kountSessionId = $post_data['KOUNT_SESSIONID'];
         if ( !empty( $post_data["ach_inovio_routing_number"] ) && strlen( $post_data["ach_inovio_routing_number"] ) > 3 && $post_data["payment_method"] == "achinoviomethod" ) {
@@ -227,6 +228,13 @@ class class_common_inovio_payment {
         } elseif ( !empty( $post_data["inoviodirectmethod_gate_card_cvv"] ) && strlen( $post_data["inoviodirectmethod_gate_card_cvv"]) <= 4 && $post_data["payment_method"] == "inoviodirectmethod" ) {
             $pmt_key_or_routing_number = ["pmt_key" => wc_clean( $post_data["inoviodirectmethod_gate_card_cvv"] )];
             $pmt_number = $post_data["inoviodirectmethod_gate_card_numbers"];
+        }
+        if (!empty($post_data['zigu_threeds_cavv'])) {
+            $three_ds = [
+                'p3ds_eci' => $post_data['zigu_threeds_eci'],
+                'p3ds_cavv' => $post_data['zigu_threeds_cavv'],
+                'p3ds_xid' => $post_data['zigu_threeds_xid']
+            ];
         }
         $params=  [
             'XTL_ORDER_ID' => $order_id,
@@ -249,7 +257,7 @@ class class_common_inovio_payment {
             'ship_addr_zip' => $order->get_shipping_postcode(),
             'ship_addr' => $order->get_shipping_address_1() . ', ' . $order->get_shipping_address_2(),
             'KOUNT_SESSIONID' => $kountSessionId,
-        ] + $pmt_key_or_routing_number;
+        ] + $pmt_key_or_routing_number + $three_ds;
         if( $post_data["payment_method"] == "achinoviomethod" ){
             unset( $params["pmt_expiry"] );
         }

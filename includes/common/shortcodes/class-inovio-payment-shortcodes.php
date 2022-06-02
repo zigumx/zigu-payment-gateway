@@ -108,6 +108,24 @@ class inovio_payment_shortcodes {
                     'min' => __( '0' ),
                 ),
             ),
+            'three_ds_min_price' => array (
+                'title' => __( 'Minimum price to require 3DS Verification' ),
+                'type' => 'number',
+                'description' => __( 'Price limit to require 3DS verification' ),
+                'desc_tip' => true,
+                'default' => __( '50000' ),
+                'custom_attributes' => array (
+                    'required' => __( 'required' ),
+                    'min' => __( '0' ),
+                ),
+            ),
+            'three_ds_api_key' => array (
+                'title' => __( '3DS Api Key' ),
+                'type' => 'text',
+                'desc_tip' => true,
+                'description' => __( '3DS service API Key' ),
+                'default' => __( '' ),
+            ),
             'debug' => array (
                 'title' => __( 'Debug Log' ),
                 'type' => 'checkbox',
@@ -230,9 +248,6 @@ class inovio_payment_shortcodes {
      * @return string $html
      */
     public function inoviodirect_checkout_form() {
-        global $woocommerce;
-        $order_price_cents = $woocommerce->cart->total * 100;
-        echo $order_price_cents;
         $today = date( 'Y' );
         $start = date( 'Y' );
         $html = '<fieldset class="inoviodirectmethod_gate_form">

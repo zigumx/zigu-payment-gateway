@@ -51,6 +51,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $this->debug = $this->get_option('debug');
         $this->debug = 'yes' == $this->get_option( 'debug', 'no' );
         $this->req_product_id = $this->get_option( 'req_product_id' );
+        $this->three_ds_min_price = $this->get_option( 'three_ds_min_price' );
+        $this->three_ds_api_key = $this->get_option( 'three_ds_api_key' );
         $this->common_class = new class_common_inovio_payment();
         add_action( 'wp_enqueue_scripts', array( $this, 'inovio_payment_script' ) );
 
@@ -72,10 +74,24 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
     public function inovio_payment_script() {
         
         wp_enqueue_script(
-                'inovio-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array ( 'jquery' )
+            'inovio-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array ( 'jquery' )
         );
+        wp_enqueue_script(
+            'zigu-three-ds', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/zigu-three-ds.js', array ( 'jquery' )
+        );
+        wp_enqueue_script(
+            'three-ds', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/three-ds.js', array ( 'jquery' )
+        );
+
         $inovioPlugindir = plugins_url()."/".explode("/", plugin_basename( __file__ ))[0];
         wp_localize_script( 'inovio-gateway-js', 'inovioPlugindir', $inovioPlugindir );
+
+        wp_localize_script( 'three-ds', 'wc_threeds_params', array (
+            'apiKey' => $this->three_ds_api_key,
+            'host' => 'http://zigu.mx',
+            'sandbox' => false,
+            'min_price' => $this->three_ds_min_price
+        ));
     }
 
     /**
@@ -264,10 +280,12 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
      * @global object $woocommerce
      */
     public function payment_fields() {
-        if ( !empty( $this->description ) ) {
-            echo wpautop( wptexturize( $this->description ) );
-        }
-        echo do_shortcode( '[direct_checkoutform]' );
+        // if ( !empty( $this->description ) ) {
+        //     echo wpautop( wptexturize( $this->description ) );
+        // }
+        // echo do_shortcode( '[direct_checkoutform]' );
+        include_once('templates/payment.php');
+        // include_once(plugin_dir_path( __FILE__ ) . 'templates/payment.php');
     }
 
     /**
