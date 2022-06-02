@@ -89,7 +89,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         wp_localize_script( 'three-ds', 'wc_threeds_params', array (
             'apiKey' => $this->three_ds_api_key,
             'host' => 'http://zigu.mx',
-            'sandbox' => true,
+            'sandbox' => false,
             'min_price' => $this->three_ds_min_price
         ));
     }
