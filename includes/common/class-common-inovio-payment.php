@@ -69,8 +69,8 @@ class class_common_inovio_payment {
         // Getting Service response
         if ( 100 != $parse_result->SERVICE_RESPONSE ) {
             if ( $options->debug == 'yes' ) :
-                $this->inovio_logger( 'Authentication Failed' );
-                $this->inovio_logger( $response );
+                $this->inovio_logger( 'Authentication Failed', $this);
+                $this->inovio_logger( $response, $this);
             endif;
 
             return false;
@@ -94,8 +94,8 @@ class class_common_inovio_payment {
         // Getting Service response
         if ( 100 != $parse_result->SERVICE_RESPONSE ) {
             if ( $options->debug == 'yes' ) :
-                $this->inovio_logger( 'Authentication Failed' );
-                $this->inovio_logger( $response );
+                $this->inovio_logger( 'Authentication Failed', $this);
+                $this->inovio_logger( $response, $this);
             endif;
 
             return false;
