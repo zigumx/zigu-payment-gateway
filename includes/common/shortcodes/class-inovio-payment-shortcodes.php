@@ -25,7 +25,7 @@ class inovio_payment_shortcodes {
      * @return array
      */
     public function inovio_admin_setting_form( $form_type = "" ) {
-        $description = $form_type == "inoviodirect" ? "Pay with credit card Zigu MX payment gateway":"Pay with ACH Zigu MX payment gateway";
+        $description = $form_type == "inoviodirect" ? "Pay with credit card Zigu MX":"Pay with ACH Zigu MX payment gateway";
 
         $form = array(
             'enabled' => array(
@@ -125,6 +125,38 @@ class inovio_payment_shortcodes {
                 'desc_tip' => true,
                 'description' => __( '3DS service API Key' ),
                 'default' => __( '' ),
+            ),
+            'installments_3_months' => array (
+                'title' => __( 'Installments' ),
+                'type' => 'checkbox',
+                'label' => __( '3 Months' ),
+                'desc_tip' => true,
+                'default' => 'no',
+                'description' => __( 'Installments 3 Months' ),
+            ),
+            'installments_6_months' => array (
+                // 'title' => __( 'Installments 6 Months' ),
+                'type' => 'checkbox',
+                'label' => __( '6 Months' ),
+                'desc_tip' => true,
+                'default' => 'no',
+                'description' => __( 'Installments 6 Months' ),
+            ),
+            'installments_9_months' => array (
+                // 'title' => __( 'Installments 9 Months' ),
+                'type' => 'checkbox',
+                'label' => __( '9 Months' ),
+                'desc_tip' => true,
+                'default' => 'no',
+                'description' => __( 'Installments 9 Months' ),
+            ),
+            'installments_12_months' => array (
+                // 'title' => __( 'Installments 12 Months' ),
+                'type' => 'checkbox',
+                'label' => __( '12 Months' ),
+                'desc_tip' => true,
+                'default' => 'no',
+                'description' => __( 'Installments 12 Months' ),
             ),
             'debug' => array (
                 'title' => __( 'Debug Log' ),

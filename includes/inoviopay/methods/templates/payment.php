@@ -105,6 +105,35 @@
             name="KOUNT_SESSIONID"
         />
     </p>
+    <?php
+        if (!empty($this->installments)) {
+    ?>
+        <p
+            class="form-row form-row-first validate-required"
+        >
+            <label
+                for="inoviodirectmethod_gate_card_expiration"
+            >
+                Meses sin intereses
+            </label>
+            <select
+                id="cc-installments"
+                class="txt"
+                name="inoviodirectmethod_installments"
+            >
+                <option value="01">01</option>
+                <?php
+                    $html = '';
+                    foreach($this->installments as $key => $value) {
+                        $html .= "<option value='" . $key . "'>$value</option>";
+                    }
+                    echo $html;
+                ?>
+            </select>
+        </p>
+    <?php
+        }
+    ?>
     <input
         type="hidden"
         class="input-text"
