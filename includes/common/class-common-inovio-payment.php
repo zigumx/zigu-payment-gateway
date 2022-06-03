@@ -237,7 +237,7 @@ class class_common_inovio_payment {
                 'p3ds_xid' => $post_data['zigu_threeds_xid']
             ];
         }
-        if (!empty($post_data['inoviodirectmethod_installments'])) {
+        if (!empty($post_data['inoviodirectmethod_installments']) && $post_data['inoviodirectmethod_installments'] != '01') {
             $installments = [
                 'request_installment' => 1,
                 'PROC_UDF01' => '00|'.$post_data['inoviodirectmethod_installments'].'|03'
