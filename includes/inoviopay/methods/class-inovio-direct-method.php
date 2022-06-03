@@ -72,6 +72,9 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
      * @access public
      */
     public function inovio_payment_script() {
+        if (!is_checkout()) {
+            return;
+        }
         
         wp_enqueue_script(
             'inovio-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array ( 'jquery' )
