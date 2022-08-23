@@ -222,6 +222,7 @@ class class_common_inovio_payment {
         $three_ds = [];
         $pmt_number = "";
         $kountSessionId = $post_data['KOUNT_SESSIONID'];
+        $installments = [];
         if ( !empty( $post_data["ach_inovio_routing_number"] ) && strlen( $post_data["ach_inovio_routing_number"] ) > 3 && $post_data["payment_method"] == "achinoviomethod" ) {
             $pmt_key_or_routing_number = ["bank_identifier" => wc_clean( $post_data["ach_inovio_routing_number"] )];
             $pmt_number = $post_data["ach_inovio_account_number"];
@@ -234,6 +235,12 @@ class class_common_inovio_payment {
                 'p3ds_eci' => $post_data['zigu_threeds_eci'],
                 'p3ds_cavv' => $post_data['zigu_threeds_cavv'],
                 'p3ds_xid' => $post_data['zigu_threeds_xid']
+            ];
+        }
+        if (!empty($post_data['inoviodirectmethod_installments']) && $post_data['inoviodirectmethod_installments'] != '01') {
+            $installments = [
+                'request_installment' => 1,
+                'PROC_UDF01' => '00|'.$post_data['inoviodirectmethod_installments'].'|03'
             ];
         }
         $params=  [
@@ -257,7 +264,7 @@ class class_common_inovio_payment {
             'ship_addr_zip' => $order->get_shipping_postcode(),
             'ship_addr' => $order->get_shipping_address_1() . ', ' . $order->get_shipping_address_2(),
             'KOUNT_SESSIONID' => $kountSessionId,
-        ] + $pmt_key_or_routing_number + $three_ds;
+        ] + $pmt_key_or_routing_number + $three_ds + $installments;
         if( $post_data["payment_method"] == "achinoviomethod" ){
             unset( $params["pmt_expiry"] );
         }

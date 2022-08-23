@@ -22,7 +22,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $this->icon = plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/img/inovio-logo.png';
 
         $this->method_title = 'Zigu';
-	    $this->method_description = 'Pay with credit card Zigu payment gateway'; 
+	    $this->method_description = 'Pay with credit card Zigu'; 
         $this->supports = array ( 'products',
                                 'refunds',
                                 'subscriptions',
@@ -53,6 +53,28 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $this->req_product_id = $this->get_option( 'req_product_id' );
         $this->three_ds_min_price = $this->get_option( 'three_ds_min_price' );
         $this->three_ds_api_key = $this->get_option( 'three_ds_api_key' );
+        $this->installments = [];
+        if ($this->get_option( 'installments_3_months', 'no' ) != 'no') {
+            $this->installments += [
+                '03' => '03'
+            ];
+        }
+        if ($this->get_option( 'installments_6_months', 'no' ) != 'no') {
+            $this->installments += [
+                '06' => '06'
+            ];
+        }
+        if ($this->get_option( 'installments_9_months', 'no' ) != 'no') {
+            $this->installments += [
+                '09' => '09'
+            ];
+        }
+        if ($this->get_option( 'installments_12_months', 'no' ) != 'no') {
+            $this->installments += [
+                '12' => '12'
+            ];
+        }
+        
         $this->common_class = new class_common_inovio_payment();
         add_action( 'wp_enqueue_scripts', array( $this, 'inovio_payment_script' ) );
 
@@ -72,6 +94,9 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
      * @access public
      */
     public function inovio_payment_script() {
+        if (!is_checkout()) {
+            return;
+        }
         
         wp_enqueue_script(
             'inovio-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array ( 'jquery' )
