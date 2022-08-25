@@ -85,6 +85,197 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             add_action( 'woocommerce_update_options_payment_gateways', array ( &$this, 'process_admin_options' ) );
         }
         $this->_maybe_register_callback_in_subscriptions(); 
+
+        // vesta ajax
+        add_action( "wp_ajax_vesta", array ( &$this, 'vesta_action' ) );
+        add_action( "wp_ajax_nopriv_vesta", array ( &$this, 'vesta_action' ) );
+    }
+
+    /**
+	 * To encode array into URL encoded string for API request.
+	 *
+	 * @param  array $requestData  request post data
+	 * @return string request post data
+	 */
+	function to_url_encode( array $requestData ) {
+		$urlEncodedString = '';
+
+		foreach ( $requestData as $key => $value ) {
+			$urlEncodedString .= $key . '=' . $value . '&';
+		}
+
+		return rtrim( $urlEncodedString, '&' );
+	}
+
+    // Vesta Ajax function
+    function vesta_action(){
+        //DO whatever you want with data posted
+        //To send back a response you have to echo the result!
+        // echo $_POST['name'];
+        // echo $_POST['age'];
+
+        // print_r($_POST);
+
+        // $xml = new SimpleXMLElement('<RiskInformation />');
+        // echo $xml->asXML();
+
+        // $riskInformation = "<riskinformation><item productcode=\"MRC1\" description=\"Matchbox Race Car\" price=\"50.00\" quantity=\"1\" extendedprice=\"6.99\" isvirtualgood=\"false\" /></riskinformation>";
+
+        $riskInformation = "
+            <riskinformation version=\"2.2\">
+                <Transaction>
+                    <Purchaser>
+                        <Account>
+                            <AccountID>String</AccountID>
+                            <CreatedDTM>2019-04-15T12:36:01Z</CreatedDTM>
+                            <DOB>1977-03-27</DOB>
+                            <isEmailVerified>true</isEmailVerified>
+                            <Email>String@String.com</Email>
+                            <FirstName>String</FirstName>
+                            <LastName>String</LastName>
+                            <AddressLine1>String</AddressLine1>
+                            <AddressLine2>String</AddressLine2>
+                            <UnitNumber>A1</UnitNumber>
+                            <BuildingNumber>2</BuildingNumber>
+                            <Neighborhood>Albondigas</Neighborhood>
+                            <City>String</City>
+                            <PostalCode>String</PostalCode>
+                            <Region>String</Region>
+                            <CountryCode>BR</CountryCode>
+                            <CurrentBalance>1000.01</CurrentBalance>
+                            <PhoneNumber>000012342332222</PhoneNumber>
+                            <isAddressValidated>true</isAddressValidated>
+                        </Account>
+                    </Purchaser>
+                    <ShoppingCart DeliveryCount=\"1\">
+                        <Delivery LineItemCount=\"1\">
+                            <DeliveryInfo DeliveryMethodCount=\"2\">
+                                <DeliveryMethod>WalletAdd</DeliveryMethod>                    
+                                <DeliveryMethod>BillPay</DeliveryMethod>                    
+                                <ShippingCarrier>String</ShippingCarrier>
+                                <TargetShipDate>2020-08-22</TargetShipDate>
+                                <ShippingClass>String</ShippingClass>
+                                <ShippingCost>2.30</ShippingCost>
+                                <PickupLocation>String</PickupLocation>
+                                <PickupDeliveryTime>Date Time</PickupDeliveryTime>
+                                <Company>String</Company>
+                                <FirstName>String</FirstName>
+                                <LastName>String</LastName>
+                                <UnitNumber>A1</UnitNumber>
+                                <BuildingNumber>2</BuildingNumber>
+                                <StreetOrBlock>Linglebach Ave</StreetOrBlock>
+                                <Neighborhood>Samas</Neighborhood>
+                                <City>String</City>
+                                <Region>String</Region>
+                                <PostalCode>String</PostalCode>
+                                <CountryCode>BR</CountryCode>
+                                <PhoneNumber>000006652340988</PhoneNumber>
+                                <Email>luis@any.com</Email>
+                                <SubscriberKey>String</SubscriberKey>
+                                <AccountID>String</AccountID>
+                                <isEmailValidated>true</isEmailValidated>
+                                <AccountBalance>4352.33</AccountBalance>
+                            </DeliveryInfo>
+                            <LineItem>
+                                <ProductCode>String</ProductCode>
+                                <ProductDescription>String</ProductDescription>
+                                <Quantity>3</Quantity>
+                                <UnitPrice>10.00</UnitPrice>
+                                <Seller>
+                                    <NumberPriorSales>2</NumberPriorSales>
+                                    <ItemCreatedDate>2019-04-15</ItemCreatedDate>
+                                    <Account>
+                                        <AccountID>String</AccountID>
+                                        <CreatedDTM>2019-04-15T12:36:01Z</CreatedDTM>
+                                        <DOB>1982-04-02</DOB>
+                                        <isEmailVerified>true</isEmailVerified>
+                                        <Email>String@string.com</Email>
+                                        <CompanyName>String</CompanyName>
+                                        <FirstName>String</FirstName>
+                                        <LastName>String</LastName>
+                                        <AddressLine1>String</AddressLine1>
+                                        <PostalCode>String</PostalCode>
+                                        <Region>String</Region>
+                                        <CountryCode>PR</CountryCode>
+                                        <CurrentBalance>150.00</CurrentBalance>
+                                        <PhoneNumber>000015556667777</PhoneNumber>
+                                        <SocialNetwork>
+                                            <Email>String@string.com</Email>
+                                            <AccountID>String</AccountID>
+                                            <Platform>String</Platform>
+                                        </SocialNetwork>
+                                    </Account>
+                                </Seller>
+                            </LineItem>
+                        </Delivery>
+                    </ShoppingCart>
+                </Transaction>
+            </riskinformation>
+        ";
+
+        // /* create a dom document with encoding utf8 */
+        // $domtree = new DOMDocument('1.0', 'UTF-8');
+
+        // /* create the root element of the xml tree */
+        // $xmlRoot = $domtree->createElement("riskinformation");
+        // /* append it to the document created */
+        // $xmlRoot = $domtree->appendChild($xmlRoot);
+
+        // echo $domtree->saveXML();
+
+
+        $postData = [
+            "AccountHolderAddressLine1" => "9666 Ignacio Prairie",
+            "AccountHolderCity" => "Gerardobury",
+            "AccountHolderCountryCode" => "US",
+            "AccountHolderFirstName" => "John",
+            "AccountHolderLastName" => "Doe",
+            "AccountHolderPostalCode" => "55742",
+            "AccountHolderRegion" => "Vermont",
+            "RiskInformation" => $riskInformation,
+            "AccountHolderAddressLine2" => "Suite 628",
+            "AccountName" => "FKef7bhDBUdSa4EsymSA4g==",
+            "AccountNumber" => "4541123514327434",
+            "AccountNumberIndicator" => "1",
+            "AcquirerCD" => "1",
+            "AcquirerAVSResultCode" => "I3",
+            "AcquirerCVVResultCode" => "M",
+            "Amount" => "34.85",
+            "AutoDisposition" => "1",
+            "CVV" => "825",
+            "ExpirationMMYY" => "1230",
+            "MerchantRoutingID" => "FRD-SCORE-ONLY",
+            "Password" => "kRLgJthcW1MD3YdIRn/1+AtboLgk3q7cXJCyvAkDjlj/0tBxvzDsL5Sj0nzPiUbZ",
+            "PaymentSource" => "WEB",
+            "StoreCard" => "0",
+            "TransactionID" => "SCQD-CGZT-BRVS-6KE2-VANB-Q9ZB-D5GJ",
+            "WebSessionID" => "101_901459"
+        ];
+
+        $args = array(
+			'body'        => json_encode($postData),
+			'httpversion' => '1.0',
+			'headers'     => array('Content-Type' => 'application/json; charset=utf-8'),
+			'cookies'     => array(),
+		);
+		$response = wp_remote_post( "https://vsafesandbox.ecustomersupport.com/GatewayV4Proxy/Service/ChargePaymentFraudRequest", $args );
+        // print_r($response);
+        // print_r($args);
+        // print_r($response["body"]);
+        // print_r($response["response"]["code"]);
+        $responseArray = json_decode($response["body"]);
+        // print_r($responseArray->RiskScore);
+
+        $riskScore = $responseArray->RiskScore;
+
+        echo json_encode([
+            "RiskScore" => $riskScore,
+            "http_response_code" => $response["response"]["code"],
+            "service_response_code" => $responseArray->ResponseCode,
+            "body" => $response["body"]
+        ]);
+
+        wp_die(); // ajax call must die to avoid trailing 0 in your response
     }
 
 
@@ -115,7 +306,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             'apiKey' => $this->three_ds_api_key,
             'host' => 'http://zigu.mx',
             'sandbox' => false,
-            'min_price' => $this->three_ds_min_price
+            'min_price' => $this->three_ds_min_price,
+            'admin_url' => admin_url( 'admin-ajax.php' )
         ));
     }
 

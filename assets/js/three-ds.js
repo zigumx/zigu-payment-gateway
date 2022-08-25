@@ -67,6 +67,35 @@ jQuery(document).ready(function () {
         })
     }
 
+    var vestaScore = function (onSuccess, onError) {
+        function getFormData($form){
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
+        
+            jQuery.map(unindexed_array, function(n, i){
+                indexed_array[n['name']] = n['value'];
+            });
+        
+            return indexed_array;
+        }
+        var data = getFormData($form)
+        console.log('data', data)
+        // data = {}
+        data['action'] = 'vesta'
+        jQuery.ajax({
+            url: wc_threeds_params.admin_url, // this is the object instantiated in wp_localize_script function
+            type: 'POST',
+            data: data,
+            dataType: "json"
+        })
+        .done(function(data) {
+            console.log('vesta result', data);
+        })
+        .fail(function() {
+            console.log('error')
+        })
+    }
+
     jQuery('form.checkout').bind('checkout_place_order', function (e) {
         console.log("form.checkout");
         if (jQuery('input[name=payment_method]:checked').val() !== 'inoviodirectmethod') {
@@ -89,11 +118,14 @@ jQuery(document).ready(function () {
         var totalNumber = Number.isNaN(Number.parseInt(total, 10)) ? 0 : Number.parseInt(total, 10);
         var wc_min_price_3ds_number = Number.isNaN(Number.parseInt(wc_min_price_3ds, 10)) ? 0 : Number.parseInt(wc_min_price_3ds, 10);
         console.log('test values', totalNumber, wc_min_price_3ds, wc_min_price_3ds_number);
-        if ((totalNumber / 100) > wc_min_price_3ds_number) {
-            generateThreeDs()
-        } else {
-            return true;
-        }
+        // if ((totalNumber / 100) > wc_min_price_3ds_number) {
+        //     generateThreeDs()
+        // } else {
+        //     return true;
+        // }
+
+        //vesta
+        vestaScore()
 
         // // Prevent the form from submitting with the default action
         return false;
