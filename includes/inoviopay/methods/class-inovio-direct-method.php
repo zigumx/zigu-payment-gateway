@@ -116,9 +116,6 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
         // print_r($_POST);
 
-        // $xml = new SimpleXMLElement('<RiskInformation />');
-        // echo $xml->asXML();
-
         // $riskInformation = "<riskinformation><item productcode=\"MRC1\" description=\"Matchbox Race Car\" price=\"50.00\" quantity=\"1\" extendedprice=\"6.99\" isvirtualgood=\"false\" /></riskinformation>";
 
         $riskInformation = "
@@ -126,124 +123,77 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 <Transaction>
                     <Purchaser>
                         <Account>
-                            <AccountID>String</AccountID>
-                            <CreatedDTM>2019-04-15T12:36:01Z</CreatedDTM>
-                            <DOB>1977-03-27</DOB>
-                            <isEmailVerified>true</isEmailVerified>
-                            <Email>String@String.com</Email>
-                            <FirstName>String</FirstName>
-                            <LastName>String</LastName>
-                            <AddressLine1>String</AddressLine1>
-                            <AddressLine2>String</AddressLine2>
-                            <UnitNumber>A1</UnitNumber>
-                            <BuildingNumber>2</BuildingNumber>
-                            <Neighborhood>Albondigas</Neighborhood>
-                            <City>String</City>
-                            <PostalCode>String</PostalCode>
-                            <Region>String</Region>
-                            <CountryCode>BR</CountryCode>
-                            <CurrentBalance>1000.01</CurrentBalance>
-                            <PhoneNumber>000012342332222</PhoneNumber>
-                            <isAddressValidated>true</isAddressValidated>
+                            <Email>".WC()->cart->get_customer()->get_billing_email()."</Email>
+                            <FirstName>".WC()->cart->get_customer()->get_billing_first_name()."</FirstName>
+                            <LastName>".WC()->cart->get_customer()->get_billing_last_name()."</LastName>
+                            <AddressLine1>".WC()->cart->get_customer()->get_billing_address()."</AddressLine1>
+                            <AddressLine2>".WC()->cart->get_customer()->get_billing_address_2()."</AddressLine2>
+                            <City>".WC()->cart->get_customer()->get_billing_city()."</City>
+                            <PostalCode>".WC()->cart->get_customer()->get_billing_postcode()."</PostalCode>
+                            <Region>".WC()->cart->get_customer()->get_billing_city()."</Region>
+                            <PhoneNumber>".WC()->cart->get_customer()->get_billing_phone()."</PhoneNumber>
                         </Account>
                     </Purchaser>
                     <ShoppingCart DeliveryCount=\"1\">
-                        <Delivery LineItemCount=\"1\">
-                            <DeliveryInfo DeliveryMethodCount=\"2\">
-                                <DeliveryMethod>WalletAdd</DeliveryMethod>                    
-                                <DeliveryMethod>BillPay</DeliveryMethod>                    
-                                <ShippingCarrier>String</ShippingCarrier>
-                                <TargetShipDate>2020-08-22</TargetShipDate>
-                                <ShippingClass>String</ShippingClass>
-                                <ShippingCost>2.30</ShippingCost>
-                                <PickupLocation>String</PickupLocation>
-                                <PickupDeliveryTime>Date Time</PickupDeliveryTime>
-                                <Company>String</Company>
-                                <FirstName>String</FirstName>
-                                <LastName>String</LastName>
-                                <UnitNumber>A1</UnitNumber>
-                                <BuildingNumber>2</BuildingNumber>
-                                <StreetOrBlock>Linglebach Ave</StreetOrBlock>
-                                <Neighborhood>Samas</Neighborhood>
-                                <City>String</City>
-                                <Region>String</Region>
-                                <PostalCode>String</PostalCode>
-                                <CountryCode>BR</CountryCode>
-                                <PhoneNumber>000006652340988</PhoneNumber>
-                                <Email>luis@any.com</Email>
-                                <SubscriberKey>String</SubscriberKey>
-                                <AccountID>String</AccountID>
-                                <isEmailValidated>true</isEmailValidated>
-                                <AccountBalance>4352.33</AccountBalance>
+                        <Delivery LineItemCount=\"".count(WC()->cart->get_cart())."\">
+                            <DeliveryInfo>
+                                <ShippingCost>".WC()->cart->get_shipping_total()."</ShippingCost>
+                                <FirstName>".WC()->cart->get_customer()->get_shipping_first_name()."</FirstName>
+                                <LastName>".WC()->cart->get_customer()->get_shipping_last_name()."</LastName>
+                                <AddressLine1>".WC()->cart->get_customer()->get_shipping_address()."</AddressLine1>
+                                <AddressLine2>".WC()->cart->get_customer()->get_shipping_address_2()."</AddressLine2>
+                                <City>".WC()->cart->get_customer()->get_shipping_city()."</City>
+                                <Region>".WC()->cart->get_customer()->get_shipping_country()."</Region>
+                                <PostalCode>".WC()->cart->get_customer()->get_shipping_postcode()."</PostalCode>
+                                <PhoneNumber>".WC()->cart->get_customer()->get_billing_phone()."</PhoneNumber>
+                                <Email>".WC()->cart->get_customer()->get_billing_email()."</Email>
                             </DeliveryInfo>
+        ";
+                        foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+                            $product = $cart_item['data'];
+
+                            $product_name = $product->name;
+                            $product_price = $product->price;
+                            $product_id = $product->id;
+                            $product_description = $product->short_description;
+                            $product_quantity = $cart_item['quantity'];
+
+                            $riskInformation.= "
                             <LineItem>
-                                <ProductCode>String</ProductCode>
-                                <ProductDescription>String</ProductDescription>
-                                <Quantity>3</Quantity>
-                                <UnitPrice>10.00</UnitPrice>
-                                <Seller>
-                                    <NumberPriorSales>2</NumberPriorSales>
-                                    <ItemCreatedDate>2019-04-15</ItemCreatedDate>
-                                    <Account>
-                                        <AccountID>String</AccountID>
-                                        <CreatedDTM>2019-04-15T12:36:01Z</CreatedDTM>
-                                        <DOB>1982-04-02</DOB>
-                                        <isEmailVerified>true</isEmailVerified>
-                                        <Email>String@string.com</Email>
-                                        <CompanyName>String</CompanyName>
-                                        <FirstName>String</FirstName>
-                                        <LastName>String</LastName>
-                                        <AddressLine1>String</AddressLine1>
-                                        <PostalCode>String</PostalCode>
-                                        <Region>String</Region>
-                                        <CountryCode>PR</CountryCode>
-                                        <CurrentBalance>150.00</CurrentBalance>
-                                        <PhoneNumber>000015556667777</PhoneNumber>
-                                        <SocialNetwork>
-                                            <Email>String@string.com</Email>
-                                            <AccountID>String</AccountID>
-                                            <Platform>String</Platform>
-                                        </SocialNetwork>
-                                    </Account>
-                                </Seller>
+                                <ProductCode>$product_id</ProductCode>
+                                <ProductDescription>$product_description</ProductDescription>
+                                <Quantity>$product_quantity</Quantity>
+                                <UnitPrice>$product_price</UnitPrice>
                             </LineItem>
+                            ";
+                        }
+        $riskInformation.="
                         </Delivery>
                     </ShoppingCart>
                 </Transaction>
             </riskinformation>
         ";
 
-        // /* create a dom document with encoding utf8 */
-        // $domtree = new DOMDocument('1.0', 'UTF-8');
-
-        // /* create the root element of the xml tree */
-        // $xmlRoot = $domtree->createElement("riskinformation");
-        // /* append it to the document created */
-        // $xmlRoot = $domtree->appendChild($xmlRoot);
-
-        // echo $domtree->saveXML();
-
-
         $postData = [
-            "AccountHolderAddressLine1" => "9666 Ignacio Prairie",
-            "AccountHolderCity" => "Gerardobury",
-            "AccountHolderCountryCode" => "US",
-            "AccountHolderFirstName" => "John",
-            "AccountHolderLastName" => "Doe",
-            "AccountHolderPostalCode" => "55742",
-            "AccountHolderRegion" => "Vermont",
+            "AccountHolderAddressLine1" => WC()->cart->get_customer()->get_billing_address(),
+            "AccountHolderCity" => WC()->cart->get_customer()->get_billing_city(),
+            "AccountHolderCountryCode" => WC()->cart->get_customer()->get_billing_country(),
+            "AccountHolderFirstName" => WC()->cart->get_customer()->get_billing_first_name(),
+            "AccountHolderLastName" => WC()->cart->get_customer()->get_billing_last_name(),
+            "AccountHolderPostalCode" => WC()->cart->get_customer()->get_billing_postcode(),
+            "AccountHolderRegion" => WC()->cart->get_customer()->get_billing_state(),
             "RiskInformation" => $riskInformation,
-            "AccountHolderAddressLine2" => "Suite 628",
+            "AccountHolderAddressLine2" => WC()->cart->get_customer()->get_billing_address_2(),
             "AccountName" => "FKef7bhDBUdSa4EsymSA4g==",
-            "AccountNumber" => "4541123514327434",
+            "AccountNumber" => $_POST["inoviodirectmethod_gate_card_numbers"],
             "AccountNumberIndicator" => "1",
             "AcquirerCD" => "1",
             "AcquirerAVSResultCode" => "I3",
             "AcquirerCVVResultCode" => "M",
-            "Amount" => "34.85",
+            "Amount" => WC()->cart->total,
             "AutoDisposition" => "1",
-            "CVV" => "825",
-            "ExpirationMMYY" => "1230",
+            "CVV" => $_POST["inoviodirectmethod_gate_card_cvv"],
+            "ExpirationMMYY" => $_POST["exp_month"] . '' . substr($_POST["exp_year"], -2),
             "MerchantRoutingID" => "FRD-SCORE-ONLY",
             "Password" => "kRLgJthcW1MD3YdIRn/1+AtboLgk3q7cXJCyvAkDjlj/0tBxvzDsL5Sj0nzPiUbZ",
             "PaymentSource" => "WEB",
@@ -251,6 +201,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             "TransactionID" => "SCQD-CGZT-BRVS-6KE2-VANB-Q9ZB-D5GJ",
             "WebSessionID" => "101_901459"
         ];
+        // print_r($postData);
 
         $args = array(
 			'body'        => json_encode($postData),
