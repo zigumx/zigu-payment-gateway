@@ -1,3 +1,14 @@
+function makeid(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * 
+ charactersLength));
+   }
+   return result;
+}
+
 jQuery(document).ready(function () {
     // Three DS
     var threeDS = new ThreeDS({
@@ -10,7 +21,11 @@ jQuery(document).ready(function () {
 
     var score = undefined
 
+    var thresholdScore = 50
+
     var tempCard = undefined
+
+    var transId = makeid(16)
 
     var $form = jQuery('form.checkout,form#order_review');
 
@@ -70,6 +85,49 @@ jQuery(document).ready(function () {
             $form.unblock();
         })
     }
+
+    // var vestaSession = function (onSuccess, onError) {
+    //     function getFormData($form){
+    //         var unindexed_array = $form.serializeArray();
+    //         var indexed_array = {};
+        
+    //         jQuery.map(unindexed_array, function(n, i){
+    //             indexed_array[n['name']] = n['value'];
+    //         });
+        
+    //         return indexed_array;
+    //     }
+    //     var data = getFormData($form)
+    //     console.log('data', data)
+    //     // data = {}
+    //     data['action'] = 'vesta_session'
+    //     jQuery.ajax({
+    //         url: wc_threeds_params.admin_url, // this is the object instantiated in wp_localize_script function
+    //         type: 'POST',
+    //         data: {
+    //             transId : transId,
+    //             action  : 'vesta_session'
+    //         },
+    //         dataType: "json"
+    //     })
+    //     .done(function(data) {
+    //         onSuccess(data);
+    //         // console.log('vesta result', data);
+    //     })
+    //     .fail(function(error) {
+    //         onError(error)
+    //         // console.log('error')
+    //     })
+    // }
+
+    // vestaSession(
+    //     function (data) {
+    //         console.log('vesta session', data)
+    //     },
+    //     function (error) {
+    //         console.log('vesta session error', error)
+    //     }
+    // )
 
     var vestaScore = function (onSuccess, onError) {
         function getFormData($form){
@@ -131,7 +189,7 @@ jQuery(document).ready(function () {
         var parsedScore = Number.isNaN(Number.parseInt(score)) ? 0 : Number.parseInt(score)
         console.log('test values', parsedScore);
         
-        var isLowScore = parsedScore > 50
+        var isLowScore = parsedScore > thresholdScore
         console.log('is low score', isLowScore)
         if (isLowScore) {
             return true
@@ -146,7 +204,7 @@ jQuery(document).ready(function () {
         if ($form.find('[name="zigu_threeds_cavv"]').length){
 			return true;
 		}
-        if (!score || tempCard !== jQuery('#inoviodirectmethod_gate_card_numbers').val()) {
+        if (score === undefined || tempCard !== jQuery('#inoviodirectmethod_gate_card_numbers').val()) {
             getScore()
             return false
         }

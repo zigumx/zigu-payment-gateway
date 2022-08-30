@@ -2,7 +2,24 @@
     global $woocommerce;
     $order_price_cents = $woocommerce->cart->total * 100;
     // echo $order_price_cents;
+
+    // echo $responseArray->OrgID;
+    // echo $responseArray->WebSessionID;
+    // echo $transId;
 ?>
+<!-- Begin fingerprinting tags below -->
+   
+<p style="background:url(https://fp.ecustomerpayments.com/DF/fp/clear.png?org_id=<?php echo $responseArray->OrgID; ?>&session_id=<?php echo $responseArray->WebSessionID; ?>&m=1)"></p>
+   
+<img src="https://fp.ecustomerpayments.com/DF/fp/clear.png?org_id=<?php echo $responseArray->OrgID; ?>&session_id=<?php echo $responseArray->WebSessionID; ?>&m=2" alt=""/>
+   
+<script src="https://fp.ecustomerpayments.com/DF/fp/check.js?org_id=<?php echo $responseArray->OrgID; ?>&session_id=<?php echo $responseArray->WebSessionID; ?>" type="text/javascript"></script>
+
+<!-- Cambiar a produccion -->
+<!-- Begin Sandbox Data Collector tags below -->
+<script src="https://riskcsproxy.ecustomersupport.com/DCCSProxy/Service/vdccs.js?AccountName=<?php echo $AccountName; ?>&WebSessionID=<?php echo $responseArray->WebSessionID; ?>" async type=“text/javascript”></script>
+   
+<!-- End fingerprinting tags -->
 <fieldset class="inoviodirectmethod_gate_form">
     <p class="form-row form-row-wide validate-required inoviodirectmethod_gate_card_number_wrap">
         <label

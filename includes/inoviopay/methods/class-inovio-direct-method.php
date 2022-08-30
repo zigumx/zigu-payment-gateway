@@ -89,6 +89,10 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         // vesta ajax
         add_action( "wp_ajax_vesta", array ( &$this, 'vesta_action' ) );
         add_action( "wp_ajax_nopriv_vesta", array ( &$this, 'vesta_action' ) );
+
+        // // vesta session ajax
+        // add_action( "wp_ajax_vesta_session", array ( &$this, 'vesta_session_action' ) );
+        // add_action( "wp_ajax_nopriv_vesta_session", array ( &$this, 'vesta_session_action' ) );
     }
 
     /**
@@ -106,6 +110,40 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
 		return rtrim( $urlEncodedString, '&' );
 	}
+
+    // Vesta Session Ajax Function
+    // function vesta_session_action() {
+    //     $postData = [
+    //         "AccountName" => "FKef7bhDBUdSa4EsymSA4g==",
+    //         "Password" => "kRLgJthcW1MD3YdIRn/1+AtboLgk3q7cXJCyvAkDjlj/0tBxvzDsL5Sj0nzPiUbZ",
+    //         "TransactionID" => $_POST["transId"]
+    //     ];
+    //     // print_r($postData);
+
+    //     $args = array(
+	// 		'body'        => json_encode($postData),
+	// 		'httpversion' => '1.0',
+	// 		'headers'     => array('Content-Type' => 'application/json; charset=utf-8'),
+	// 		'cookies'     => array(),
+	// 	);
+	// 	$response = wp_remote_post( "https://vsafesandbox.ecustomersupport.com/GatewayV4Proxy/Service/GetSessionTags", $args );
+    //     // print_r($response);
+    //     // print_r($args);
+    //     // print_r($response["body"]);
+    //     // print_r($response["response"]["code"]);
+    //     $responseArray = json_decode($response["body"]);
+    //     print_r($responseArray);
+
+    //     echo json_encode([
+    //         "OrgID" => $responseArray->OrgID,
+    //         "WebSessionID" => $responseArray->WebSessionID,
+    //         "http_response_code" => $response["response"]["code"],
+    //         "service_response_code" => $responseArray->ResponseCode,
+    //         "body" => $response["body"]
+    //     ]);
+
+    //     wp_die(); // ajax call must die to avoid trailing 0 in your response
+    // }
 
     // Vesta Ajax function
     function vesta_action(){
@@ -198,8 +236,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             "Password" => "kRLgJthcW1MD3YdIRn/1+AtboLgk3q7cXJCyvAkDjlj/0tBxvzDsL5Sj0nzPiUbZ",
             "PaymentSource" => "WEB",
             "StoreCard" => "0",
-            "TransactionID" => "SCQD-CGZT-BRVS-6KE2-VANB-Q9ZB-D5GJ",
-            "WebSessionID" => "101_901459"
+            "TransactionID" => WC()->session->get('transId'),
+            "WebSessionID" => WC()->session->get('WebSessionID')
         ];
         // print_r($postData);
 
@@ -442,12 +480,57 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $this->form_fields = $form_object->inovio_admin_setting_form( "inoviodirect" );
     }
 
+    public function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
     /**
      * Use to create payment form on checkout page.
      *
      * @global object $woocommerce
      */
     public function payment_fields() {
+        $transId = $this->generateRandomString(16);
+        $AccountName = "FKef7bhDBUdSa4EsymSA4g==";
+        $postData = [
+            "AccountName" => "FKef7bhDBUdSa4EsymSA4g==",
+            "Password" => "kRLgJthcW1MD3YdIRn/1+AtboLgk3q7cXJCyvAkDjlj/0tBxvzDsL5Sj0nzPiUbZ",
+            "TransactionID" => $transId
+        ];
+        // print_r($postData);
+
+        $args = array(
+			'body'        => json_encode($postData),
+			'httpversion' => '1.0',
+			'headers'     => array('Content-Type' => 'application/json; charset=utf-8'),
+			'cookies'     => array(),
+		);
+		$response = wp_remote_post( "https://vsafesandbox.ecustomersupport.com/GatewayV4Proxy/Service/GetSessionTags", $args );
+        // print_r($response);
+        // print_r($args);
+        // print_r($response["body"]);
+        // print_r($response["response"]["code"]);
+        $responseArray = json_decode($response["body"]);
+        // print_r($responseArray);
+
+        WC()->session->set( 'OrgID', $responseArray->OrgID);
+        WC()->session->set( 'WebSessionID', $responseArray->WebSessionID);
+        WC()->session->set( 'transId', $transId);
+
+        // echo json_encode([
+        //     "OrgID" => $responseArray->OrgID,
+        //     "WebSessionID" => $responseArray->WebSessionID,
+        //     "http_response_code" => $response["response"]["code"],
+        //     "service_response_code" => $responseArray->ResponseCode,
+        //     "body" => $response["body"]
+        // ]);
+
         // if ( !empty( $this->description ) ) {
         //     echo wpautop( wptexturize( $this->description ) );
         // }
