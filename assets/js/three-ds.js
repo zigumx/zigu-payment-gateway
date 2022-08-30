@@ -8,6 +8,10 @@ jQuery(document).ready(function () {
 
     var wc_min_price_3ds = wc_threeds_params.min_price;
 
+    var score = undefined
+
+    var tempCard = undefined
+
     var $form = jQuery('form.checkout,form#order_review');
 
     var removeThreeDsInputs = function () {
@@ -89,14 +93,16 @@ jQuery(document).ready(function () {
             dataType: "json"
         })
         .done(function(data) {
-            console.log('vesta result', data);
+            onSuccess(data);
+            // console.log('vesta result', data);
         })
-        .fail(function() {
-            console.log('error')
+        .fail(function(error) {
+            onError(error)
+            // console.log('error')
         })
     }
 
-    jQuery('form.checkout').bind('checkout_place_order', function (e) {
+    var blockForm = function () {
         console.log("form.checkout");
         if (jQuery('input[name=payment_method]:checked').val() !== 'inoviodirectmethod') {
             return true;
@@ -104,30 +110,72 @@ jQuery(document).ready(function () {
         console.log("checkout_place_order");
         $form.find('.payment-errors').html('');
         $form.block({message: null, overlayCSS: {background: "#fff url(" + woocommerce_params.ajax_loader_url + ") no-repeat center", backgroundSize: "16px 16px", opacity: 0.6}});
-        
-        if ($form.find('[name="zigu_threeds_cavv"]').length){
-			return true;
-		}
+    }
 
-        // if ($form.find('[name="zigu_token"]').length){
-		// 	return true;
-		// }
-        // addValueField('zigu_token', '');
-
+    var checkHighPrice = function () {
         var total = jQuery('#zigu_checkout_total').val();
         var totalNumber = Number.isNaN(Number.parseInt(total, 10)) ? 0 : Number.parseInt(total, 10);
         var wc_min_price_3ds_number = Number.isNaN(Number.parseInt(wc_min_price_3ds, 10)) ? 0 : Number.parseInt(wc_min_price_3ds, 10);
         console.log('test values', totalNumber, wc_min_price_3ds, wc_min_price_3ds_number);
-        // if ((totalNumber / 100) > wc_min_price_3ds_number) {
-        //     generateThreeDs()
-        // } else {
-        //     return true;
-        // }
 
-        //vesta
-        vestaScore()
+        var isHighPrice = (totalNumber / 100) > wc_min_price_3ds_number
+        console.log('is high price', isHighPrice)
+        if (isHighPrice) {
+            return true
+        } else {
+            return false
+        }
+    }
 
-        // // Prevent the form from submitting with the default action
-        return false;
-    });
+    var checkLowScore = function () {
+        var parsedScore = Number.isNaN(Number.parseInt(score)) ? 0 : Number.parseInt(score)
+        console.log('test values', parsedScore);
+        
+        var isLowScore = parsedScore > 50
+        console.log('is low score', isLowScore)
+        if (isLowScore) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    var decisionMaker = function () {
+        console.log('desision maker')
+        blockForm()
+        if ($form.find('[name="zigu_threeds_cavv"]').length){
+			return true;
+		}
+        if (!score || tempCard !== jQuery('#inoviodirectmethod_gate_card_numbers').val()) {
+            getScore()
+            return false
+        }
+        if (checkHighPrice() || checkLowScore()) {
+            generateThreeDs()
+            return false
+        } else {
+            return true
+        }
+    }
+
+    var getScore = function () {
+        console.log('get score')
+        tempCard = jQuery('#inoviodirectmethod_gate_card_numbers').val();
+        vestaScore (
+            function (data) {
+                console.log('success ', data)
+                score = data.RiskScore || 0
+                // check3DS()
+                $form.submit();
+            },
+            function (error) {
+                console.log('error ', error)
+                score = 0
+                // check3DS()
+                $form.submit();
+            }
+        )
+    }
+
+    jQuery('form.checkout').bind('checkout_place_order', decisionMaker);
 });
