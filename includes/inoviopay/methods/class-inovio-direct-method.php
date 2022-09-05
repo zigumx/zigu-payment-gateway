@@ -53,6 +53,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $this->req_product_id = $this->get_option( 'req_product_id' );
         $this->three_ds_min_price = $this->get_option( 'three_ds_min_price' );
         $this->three_ds_api_key = $this->get_option( 'three_ds_api_key' );
+        $this->three_ds_sandbox = true; // poner en false para produccion
         $this->installments = [];
         if ($this->get_option( 'installments_3_months', 'no' ) != 'no') {
             $this->installments += [
@@ -74,6 +75,10 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 '12' => '12'
             ];
         }
+        $this->vesta_endpoint = "https://vsafesandbox.ecustomersupport.com/GatewayV4Proxy/Service";
+        $this->vesta_account_name = "FKef7bhDBUdSa4EsymSA4g==";
+        $this->vesta_password = "kRLgJthcW1MD3YdIRn/1+AtboLgk3q7cXJCyvAkDjlj/0tBxvzDsL5Sj0nzPiUbZ";
+        
         
         $this->common_class = new class_common_inovio_payment();
         add_action( 'wp_enqueue_scripts', array( $this, 'inovio_payment_script' ) );
@@ -222,18 +227,18 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             "AccountHolderRegion" => WC()->cart->get_customer()->get_billing_state(),
             "RiskInformation" => $riskInformation,
             "AccountHolderAddressLine2" => WC()->cart->get_customer()->get_billing_address_2(),
-            "AccountName" => "FKef7bhDBUdSa4EsymSA4g==",
-            "AccountNumber" => $_POST["inoviodirectmethod_gate_card_numbers"],
-            "AccountNumberIndicator" => "1",
+            "AccountName" => $this->vesta_account_name,
+            "Password" => $this->vesta_password,
+            "AccountNumber" =>  substr($_POST["inoviodirectmethod_gate_card_numbers"], 0, 6) . substr($_POST["inoviodirectmethod_gate_card_numbers"], -4),
+            "AccountNumberIndicator" => "4",
             "AcquirerCD" => "1",
             "AcquirerAVSResultCode" => "I3",
             "AcquirerCVVResultCode" => "M",
             "Amount" => WC()->cart->total,
-            "AutoDisposition" => "1",
-            "CVV" => $_POST["inoviodirectmethod_gate_card_cvv"],
+            "AutoDisposition" => "0", // llamar api disposition para notificar si se completo o cancelo la orden
+            // "CVV" => $_POST["inoviodirectmethod_gate_card_cvv"], // no pasar cvv
             "ExpirationMMYY" => $_POST["exp_month"] . '' . substr($_POST["exp_year"], -2),
             "MerchantRoutingID" => "FRD-SCORE-ONLY",
-            "Password" => "kRLgJthcW1MD3YdIRn/1+AtboLgk3q7cXJCyvAkDjlj/0tBxvzDsL5Sj0nzPiUbZ",
             "PaymentSource" => "WEB",
             "StoreCard" => "0",
             "TransactionID" => WC()->session->get('transId'),
@@ -241,30 +246,51 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         ];
         // print_r($postData);
 
-        $args = array(
-			'body'        => json_encode($postData),
-			'httpversion' => '1.0',
-			'headers'     => array('Content-Type' => 'application/json; charset=utf-8'),
-			'cookies'     => array(),
-		);
-		$response = wp_remote_post( "https://vsafesandbox.ecustomersupport.com/GatewayV4Proxy/Service/ChargePaymentFraudRequest", $args );
-        // print_r($response);
-        // print_r($args);
-        // print_r($response["body"]);
-        // print_r($response["response"]["code"]);
+        // $args = array(
+		// 	'body'        => json_encode($postData),
+		// 	'httpversion' => '1.0',
+		// 	'headers'     => array('Content-Type' => 'application/json; charset=utf-8'),
+		// 	'cookies'     => array(),
+		// );
+		// $response = wp_remote_post( "https://vsafesandbox.ecustomersupport.com/GatewayV4Proxy/Service/ChargePaymentFraudRequest", $args );
+        // // print_r($response);
+        // // print_r($args);
+        // // print_r($response["body"]);
+        // // print_r($response["response"]["code"]);
+        // $responseArray = json_decode($response["body"]);
+        $response = $this->sendToVesta("ChargePaymentFraudRequest", $postData);
         $responseArray = json_decode($response["body"]);
-        // print_r($responseArray->RiskScore);
+        // print_r($responseArray);
 
-        $riskScore = $responseArray->RiskScore;
+        WC()->session->set( 'PaymentID', $responseArray->PaymentID);
 
         echo json_encode([
-            "RiskScore" => $riskScore,
+            "RiskScore" => $responseArray->RiskScore,
             "http_response_code" => $response["response"]["code"],
             "service_response_code" => $responseArray->ResponseCode,
             "body" => $response["body"]
         ]);
 
         wp_die(); // ajax call must die to avoid trailing 0 in your response
+    }
+
+    /**
+	 * Send POST to Vesta
+	 *
+	 * @param  string $service  service
+     * @param  array $postData  request post data
+	 * @return array request post data
+	 */
+    function sendToVesta($service, $postData) {
+        $endpoint = $this->vesta_endpoint;
+        $args = array(
+			'body'        => json_encode($postData),
+			'httpversion' => '1.0',
+			'headers'     => array('Content-Type' => 'application/json; charset=utf-8'),
+			'cookies'     => array(),
+		);
+		$response = wp_remote_post( "$endpoint/$service", $args );
+        return $response;
     }
 
 
@@ -294,7 +320,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         wp_localize_script( 'three-ds', 'wc_threeds_params', array (
             'apiKey' => $this->three_ds_api_key,
             'host' => 'http://zigu.mx',
-            'sandbox' => false,
+            'sandbox' => $this->three_ds_sandbox,
             'min_price' => $this->three_ds_min_price,
             'admin_url' => admin_url( 'admin-ajax.php' )
         ));
@@ -497,25 +523,27 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
      */
     public function payment_fields() {
         $transId = $this->generateRandomString(16);
-        $AccountName = "FKef7bhDBUdSa4EsymSA4g==";
+        // $AccountName = "FKef7bhDBUdSa4EsymSA4g==";
         $postData = [
-            "AccountName" => "FKef7bhDBUdSa4EsymSA4g==",
-            "Password" => "kRLgJthcW1MD3YdIRn/1+AtboLgk3q7cXJCyvAkDjlj/0tBxvzDsL5Sj0nzPiUbZ",
+            "AccountName" => $this->vesta_account_name,
+            "Password" => $this->vesta_password,
             "TransactionID" => $transId
         ];
         // print_r($postData);
 
-        $args = array(
-			'body'        => json_encode($postData),
-			'httpversion' => '1.0',
-			'headers'     => array('Content-Type' => 'application/json; charset=utf-8'),
-			'cookies'     => array(),
-		);
-		$response = wp_remote_post( "https://vsafesandbox.ecustomersupport.com/GatewayV4Proxy/Service/GetSessionTags", $args );
-        // print_r($response);
-        // print_r($args);
-        // print_r($response["body"]);
-        // print_r($response["response"]["code"]);
+        // $args = array(
+		// 	'body'        => json_encode($postData),
+		// 	'httpversion' => '1.0',
+		// 	'headers'     => array('Content-Type' => 'application/json; charset=utf-8'),
+		// 	'cookies'     => array(),
+		// );
+		// $response = wp_remote_post( "https://vsafesandbox.ecustomersupport.com/GatewayV4Proxy/Service/GetSessionTags", $args );
+        // // print_r($response);
+        // // print_r($args);
+        // // print_r($response["body"]);
+        // // print_r($response["response"]["code"]);
+        // $responseArray = json_decode($response["body"]);
+        $response = $this->sendToVesta("GetSessionTags", $postData);
         $responseArray = json_decode($response["body"]);
         // print_r($responseArray);
 
@@ -664,6 +692,30 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     if ( !is_admin() ) {
                         WC()->session->set( 'affiliate_hash', '' );
                     }
+
+                    // send disposition to vesta
+                    $ziguTransId = $parse_result->TRANS_ID;
+                    $postData = [
+                        "AccountName" => $this->vesta_account_name,
+                        "Password" => $this->vesta_password,
+                        "TransactionID" => WC()->session->get("transId"),
+
+                        "Amount" => $order->get_total(),
+                        "DispositionComment" => "Trans ID: $ziguTransId",
+                        "DispositionType" => "1", // 1 sale completed, 2 sale cancelled
+                        "PaymentID" => WC()->session->get( 'PaymentID'),
+
+                    ];
+                    $response = $this->sendToVesta("Disposition", $postData);
+                    $responseArray = json_decode($response["body"]);
+                    // print_r($postData);
+                    // print_r($responseArray);
+                    // throw new Exception(
+                    //     __(
+                    //         'test'
+                    //         , $this->id
+                    //     )
+                    // );
 
                     // Return thank you page redirect
                     return array(
@@ -943,6 +995,25 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     endif;
 
                     // throw new Exception($response);
+
+                    // send disposition to vesta
+                    $ziguTransId = $parse_result->TRANS_ID;
+                    $postData = [
+                        "AccountName" => $this->vesta_account_name,
+                        "Password" => $this->vesta_password,
+                        "TransactionID" => WC()->session->get("transId"),
+
+                        "Amount" => $order->get_total(),
+                        "DispositionComment" => "Trans ID: $ziguTransId",
+                        "DispositionType" => "2", // 1 sale completed, 2 sale cancelled
+                        "PaymentID" => WC()->session->get( 'PaymentID'),
+
+                    ];
+                    $response = $this->sendToVesta("Disposition", $postData);
+                    $responseArray = json_decode($response["body"]);
+                    // print_r($postData);
+                    // print_r($responseArray);
+                    // print_r($parse_result);
 
                     throw new Exception(
                         __(

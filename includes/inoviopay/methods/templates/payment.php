@@ -5,6 +5,7 @@
 
     // echo $responseArray->OrgID;
     // echo $responseArray->WebSessionID;
+    // print_r($responseArray);
     // echo $transId;
 ?>
 <!-- Begin fingerprinting tags below -->
