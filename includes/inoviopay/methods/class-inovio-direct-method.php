@@ -177,9 +177,17 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                             <PhoneNumber>".WC()->cart->get_customer()->get_billing_phone()."</PhoneNumber>
                         </Account>
                     </Purchaser>
+                    <Billing>
+                        <BillingPhoneNumber></BillingPhoneNumber>
+                        <Email></Email>
+                        <PaymentDetails>
+                            <isPDOF>FALSE</isPDOF>
+                        </PaymentDetails>
+                    </Billing>
                     <ShoppingCart DeliveryCount=\"1\">
                         <Delivery LineItemCount=\"".count(WC()->cart->get_cart())."\">
                             <DeliveryInfo>
+                                <DeliveryMethod>PhysicalShipping</DeliveryMethod>
                                 <ShippingCost>".WC()->cart->get_shipping_total()."</ShippingCost>
                                 <FirstName>".WC()->cart->get_customer()->get_shipping_first_name()."</FirstName>
                                 <LastName>".WC()->cart->get_customer()->get_shipping_last_name()."</LastName>
@@ -231,14 +239,14 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             "Password" => $this->vesta_password,
             "AccountNumber" =>  substr($_POST["inoviodirectmethod_gate_card_numbers"], 0, 6) . substr($_POST["inoviodirectmethod_gate_card_numbers"], -4),
             "AccountNumberIndicator" => "4",
-            "AcquirerCD" => "1",
-            "AcquirerAVSResultCode" => "I3",
-            "AcquirerCVVResultCode" => "M",
+            // "AcquirerCD" => "1",
+            // "AcquirerAVSResultCode" => "I3",
+            // "AcquirerCVVResultCode" => "M",
             "Amount" => WC()->cart->total,
             "AutoDisposition" => "0", // llamar api disposition para notificar si se completo o cancelo la orden
             // "CVV" => $_POST["inoviodirectmethod_gate_card_cvv"], // no pasar cvv
             "ExpirationMMYY" => $_POST["exp_month"] . '' . substr($_POST["exp_year"], -2),
-            "MerchantRoutingID" => "FRD-SCORE-ONLY",
+            "MerchantRoutingID" => "10120000000023145000",
             "PaymentSource" => "WEB",
             "StoreCard" => "0",
             "TransactionID" => WC()->session->get('transId'),
