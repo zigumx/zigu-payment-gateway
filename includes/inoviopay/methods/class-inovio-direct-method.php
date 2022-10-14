@@ -150,6 +150,14 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
     //     wp_die(); // ajax call must die to avoid trailing 0 in your response
     // }
 
+    function formatPhoneNumber ($phone) {
+        $mexicoPhoneCode = "00152";
+        $subPhone = substr($phone, -10);
+        $padPhone = str_pad($subPhone, 10, "0", STR_PAD_LEFT);
+        $final = "$mexicoPhoneCode$padPhone";
+        return $final;
+    }
+
     // Vesta Ajax function
     function vesta_action(){
         //DO whatever you want with data posted
@@ -161,43 +169,94 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
         // $riskInformation = "<riskinformation><item productcode=\"MRC1\" description=\"Matchbox Race Car\" price=\"50.00\" quantity=\"1\" extendedprice=\"6.99\" isvirtualgood=\"false\" /></riskinformation>";
 
+        $user = _wp_get_current_user();
+
+        $firstName = WC()->cart->get_customer()->get_billing_first_name() ?: $_POST["billing_first_name"];
+        $lastName = WC()->cart->get_customer()->get_billing_last_name() ?: $_POST["billing_last_name"];
+        $email = WC()->cart->get_customer()->get_billing_email() ?: $_POST["billing_email"];
+        $phone = WC()->cart->get_customer()->get_billing_phone() ?: $_POST["billing_phone"];
+
+        $account = "";
+        if ($user->data->ID) {
+            $account = "
+                <Account>
+                    <AccountID>".$user->data->ID."</AccountID>
+                    <CreatedDTM>".$user->data->user_registered."</CreatedDTM>
+                    <Email>".$email."</Email>
+                    <FirstName>".$firstName."</FirstName>
+                    <LastName>".$lastName."</LastName>
+                    <AddressLine1>".WC()->cart->get_customer()->get_billing_address()."</AddressLine1>
+                    <AddressLine2>".WC()->cart->get_customer()->get_billing_address_2()."</AddressLine2>
+                    <City>".WC()->cart->get_customer()->get_billing_city()."</City>
+                    <PostalCode>".WC()->cart->get_customer()->get_billing_postcode()."</PostalCode>
+                    <Region>".WC()->cart->get_customer()->get_billing_city()."</Region>
+                    <PhoneNumber>".$this->formatPhoneNumber($phone)."</PhoneNumber>
+                    <isEmailVerified>FALSE</isEmailVerified>
+                    <isPhoneVerified>FALSE</isPhoneVerified>
+                    <isAddressValidated>FALSE</isAddressValidated>
+                </Account>
+            ";
+        }
+
+        $datetime = new DateTime();
+
+        $promotion = "";
+        foreach (WC()->cart->get_coupons() as $key=>$value) {
+            $promotion = "
+                <Promotion>
+                    <Discount>".$value->get_amount()."</Discount>
+                    <Code>".$key."</Code>
+                    <Description>".$value->get_description()."</Description>
+                </Promotion>
+            ";
+        }
+
         $riskInformation = "
             <riskinformation version=\"2.2\">
                 <Transaction>
+                    <Channel>
+                        <IPAddress>".WC_Geolocation::get_ip_address()."</IPAddress>
+                        <MerchantChannelCode>001</MerchantChannelCode>
+                        <MerchantChannelDescription>Airforce Wocoommerce Website</MerchantChannelDescription>
+                        <MerchantSubChannelCode>airforce</MerchantSubChannelCode>
+                        <VestaChannelCode>WEB</VestaChannelCode>
+                    </Channel>
+                    <TimeStamp>
+                        <TimeStamp>".$datetime->format(DateTime::ATOM)."</TimeStamp>
+                    </TimeStamp>
                     <Purchaser>
-                        <Account>
-                            <Email>".WC()->cart->get_customer()->get_billing_email()."</Email>
-                            <FirstName>".WC()->cart->get_customer()->get_billing_first_name()."</FirstName>
-                            <LastName>".WC()->cart->get_customer()->get_billing_last_name()."</LastName>
-                            <AddressLine1>".WC()->cart->get_customer()->get_billing_address()."</AddressLine1>
-                            <AddressLine2>".WC()->cart->get_customer()->get_billing_address_2()."</AddressLine2>
-                            <City>".WC()->cart->get_customer()->get_billing_city()."</City>
-                            <PostalCode>".WC()->cart->get_customer()->get_billing_postcode()."</PostalCode>
-                            <Region>".WC()->cart->get_customer()->get_billing_city()."</Region>
-                            <PhoneNumber>".WC()->cart->get_customer()->get_billing_phone()."</PhoneNumber>
-                        </Account>
+                        ".$account."
                     </Purchaser>
                     <Billing>
-                        <BillingPhoneNumber></BillingPhoneNumber>
-                        <Email></Email>
+                        <PaymentDeviceToken></PaymentDeviceToken>
+                        <BillingPhoneNumber>".$this->formatPhoneNumber($phone)."</BillingPhoneNumber>
+                        <Email>".$email."</Email>
                         <PaymentDetails>
                             <isPDOF>FALSE</isPDOF>
                         </PaymentDetails>
                     </Billing>
+                    ".$promotion."
                     <ShoppingCart DeliveryCount=\"1\">
                         <Delivery LineItemCount=\"".count(WC()->cart->get_cart())."\">
                             <DeliveryInfo>
                                 <DeliveryMethod>PhysicalShipping</DeliveryMethod>
                                 <ShippingCost>".WC()->cart->get_shipping_total()."</ShippingCost>
-                                <FirstName>".WC()->cart->get_customer()->get_shipping_first_name()."</FirstName>
-                                <LastName>".WC()->cart->get_customer()->get_shipping_last_name()."</LastName>
+                                <FirstName>".($firstName)."</FirstName>
+                                <LastName>".($lastName)."</LastName>
                                 <AddressLine1>".WC()->cart->get_customer()->get_shipping_address()."</AddressLine1>
                                 <AddressLine2>".WC()->cart->get_customer()->get_shipping_address_2()."</AddressLine2>
+                                <UnitNumber></UnitNumber>
+                                <BuildingNumber></BuildingNumber>
+                                <StreetOrBlock></StreetOrBlock>
+                                <Neighborhood></Neighborhood>
                                 <City>".WC()->cart->get_customer()->get_shipping_city()."</City>
                                 <Region>".WC()->cart->get_customer()->get_shipping_country()."</Region>
                                 <PostalCode>".WC()->cart->get_customer()->get_shipping_postcode()."</PostalCode>
-                                <PhoneNumber>".WC()->cart->get_customer()->get_billing_phone()."</PhoneNumber>
-                                <Email>".WC()->cart->get_customer()->get_billing_email()."</Email>
+                                <CountryCode>mx</CountryCode>
+                                <PhoneNumber>".$this->formatPhoneNumber($phone)."</PhoneNumber>
+                                <Email>".$email."</Email>
+                                <isAddressValidated>NULL</isAddressValidated>
+                                <isEmailValidated>NULL</isEmailValidated>
                             </DeliveryInfo>
         ";
                         foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
@@ -212,7 +271,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                             $riskInformation.= "
                             <LineItem>
                                 <ProductCode>$product_id</ProductCode>
-                                <ProductDescription>$product_description</ProductDescription>
+                                <ProductDescription>$product_name</ProductDescription>
                                 <Quantity>$product_quantity</Quantity>
                                 <UnitPrice>$product_price</UnitPrice>
                             </LineItem>
@@ -226,33 +285,40 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         ";
 
         $postData = [
-            "AccountHolderAddressLine1" => WC()->cart->get_customer()->get_billing_address(),
-            "AccountHolderCity" => WC()->cart->get_customer()->get_billing_city(),
-            "AccountHolderCountryCode" => WC()->cart->get_customer()->get_billing_country(),
-            "AccountHolderFirstName" => WC()->cart->get_customer()->get_billing_first_name(),
-            "AccountHolderLastName" => WC()->cart->get_customer()->get_billing_last_name(),
-            "AccountHolderPostalCode" => WC()->cart->get_customer()->get_billing_postcode(),
-            "AccountHolderRegion" => WC()->cart->get_customer()->get_billing_state(),
+            "AccountHolderAddressLine1" => substr(WC()->cart->get_customer()->get_billing_address(), 0, 30),
+            "AccountHolderCity" => substr(WC()->cart->get_customer()->get_billing_city(), 0, 530),
+            "AccountHolderCountryCode" => substr(WC()->cart->get_customer()->get_billing_country(), 0, 2),
+            "AccountHolderFirstName" => substr($firstName, 0, 20),
+            "AccountHolderLastName" => substr($lastName, 0, 20),
+            "AccountHolderPostalCode" => substr(WC()->cart->get_customer()->get_billing_postcode(), 0, 10),
+            "AccountHolderRegion" => substr(WC()->cart->get_customer()->get_billing_state(), 0, 30),
             "RiskInformation" => $riskInformation,
-            "AccountHolderAddressLine2" => WC()->cart->get_customer()->get_billing_address_2(),
-            "AccountName" => $this->vesta_account_name,
-            "Password" => $this->vesta_password,
+            "AccountHolderAddressLine2" => substr(WC()->cart->get_customer()->get_billing_address_2(), 0, 30),
+            "AccountName" => substr($this->vesta_account_name, 0, 32),
+            "Password" => substr($this->vesta_password, 0, 64),
             "AccountNumber" =>  substr($_POST["inoviodirectmethod_gate_card_numbers"], 0, 6) . substr($_POST["inoviodirectmethod_gate_card_numbers"], -4),
-            "AccountNumberIndicator" => "4",
-            // "AcquirerCD" => "1",
+            "AccountNumberIndicator" => substr("4", 0, 1),
+            "AcquirerCD" => "1012",
             // "AcquirerAVSResultCode" => "I3",
             // "AcquirerCVVResultCode" => "M",
-            "Amount" => WC()->cart->total,
+            "Amount" => substr(WC()->cart->total, 0, 12),
             "AutoDisposition" => "0", // llamar api disposition para notificar si se completo o cancelo la orden
             // "CVV" => $_POST["inoviodirectmethod_gate_card_cvv"], // no pasar cvv
-            "ExpirationMMYY" => $_POST["exp_month"] . '' . substr($_POST["exp_year"], -2),
-            "MerchantRoutingID" => "10120000000023145000",
-            "PaymentSource" => "WEB",
-            "StoreCard" => "0",
-            "TransactionID" => WC()->session->get('transId'),
-            "WebSessionID" => WC()->session->get('WebSessionID')
+            "ExpirationMMYY" => substr($_POST["exp_month"] . '' . substr($_POST["exp_year"], -2), 0, 4),
+            "MerchantRoutingID" => substr("10120000000023145000", 0, 20),
+            "PaymentSource" => substr("WEB", 0, 3),
+            // "StoreCard" => "0",
+            "TransactionID" => substr(WC()->session->get('transId'), 0, 36),
+            "WebSessionID" => substr(WC()->session->get('WebSessionID'), 0, 4000)
         ];
+        $postEncoded = json_encode($postData);
+        $this->common_class->inovio_logger( "Vesta Request Body: $postEncoded", $this );
+        // print_r($riskInformation);
         // print_r($postData);
+        // print_r($postData);
+        // print_r(WC()->cart);
+        // print_r(WC()->cart->get_customer());
+        // throw new Exception( __( 'test' ) );
 
         // $args = array(
 		// 	'body'        => json_encode($postData),
@@ -268,12 +334,14 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         // $responseArray = json_decode($response["body"]);
         $response = $this->sendToVesta("ChargePaymentFraudRequest", $postData);
         $responseArray = json_decode($response["body"]);
-        // print_r($responseArray);
 
         WC()->session->set( 'PaymentID', $responseArray->PaymentID);
 
         echo json_encode([
             "RiskScore" => $responseArray->RiskScore,
+            "RiskProbabilityIndex" => $responseArray->RiskProbabilityIndex,
+            "RiskDecisionCode" => $responseArray->RiskDecisionCode,
+            "FraudIndicator" => $responseArray->FraudIndicator,
             "http_response_code" => $response["response"]["code"],
             "service_response_code" => $responseArray->ResponseCode,
             "body" => $response["body"]
@@ -298,6 +366,12 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 			'cookies'     => array(),
 		);
 		$response = wp_remote_post( "$endpoint/$service", $args );
+        $body = $response["body"];
+        $bodyResponseCode = $response["response"]["code"];
+        $header = $response["header"];
+        $this->common_class->inovio_logger( "Vesta Response Body: $body", $this );
+        $this->common_class->inovio_logger( "Vesta Response Code: $bodyResponseCode", $this );
+        $this->common_class->inovio_logger( "Vesta Response Header: $header", $this );
         return $response;
     }
 
@@ -551,13 +625,22 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         // // print_r($response["body"]);
         // // print_r($response["response"]["code"]);
         // $responseArray = json_decode($response["body"]);
-        $response = $this->sendToVesta("GetSessionTags", $postData);
-        $responseArray = json_decode($response["body"]);
-        // print_r($responseArray);
 
-        WC()->session->set( 'OrgID', $responseArray->OrgID);
-        WC()->session->set( 'WebSessionID', $responseArray->WebSessionID);
-        WC()->session->set( 'transId', $transId);
+        if (!WC()->session->get( 'OrgID')) {
+            $this->common_class->inovio_logger( "Set new", $this );
+
+            $response = $this->sendToVesta("GetSessionTags", $postData);
+            $responseArray = json_decode($response["body"]);
+            // print_r($responseArray);
+
+            $this->common_class->inovio_logger( "OrgID: $responseArray->OrgID", $this );
+            $this->common_class->inovio_logger( "WebSessionID: $responseArray->WebSessionID", $this );
+            $this->common_class->inovio_logger( "transId: $transId", $this );
+
+            WC()->session->set( 'OrgID', $responseArray->OrgID);
+            WC()->session->set( 'WebSessionID', $responseArray->WebSessionID);
+            WC()->session->set( 'transId', $transId);
+        }
 
         // echo json_encode([
         //     "OrgID" => $responseArray->OrgID,
@@ -724,6 +807,11 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     //         , $this->id
                     //     )
                     // );
+
+                    WC()->session->set( 'OrgID', "");
+                    WC()->session->set( 'WebSessionID', "");
+                    WC()->session->set( 'transId', "");
+                    WC()->session->set( 'PaymentID', "");
 
                     // Return thank you page redirect
                     return array(
@@ -1022,6 +1110,11 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     // print_r($postData);
                     // print_r($responseArray);
                     // print_r($parse_result);
+
+                    WC()->session->set( 'OrgID', "");
+                    WC()->session->set( 'WebSessionID', "");
+                    WC()->session->set( 'transId', "");
+                    WC()->session->set( 'PaymentID', "");
 
                     throw new Exception(
                         __(

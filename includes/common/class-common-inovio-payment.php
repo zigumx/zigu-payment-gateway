@@ -231,11 +231,20 @@ class class_common_inovio_payment {
             $pmt_number = $post_data["inoviodirectmethod_gate_card_numbers"];
         }
         if (!empty($post_data['zigu_threeds_cavv'])) {
-            $three_ds = [
-                'p3ds_eci' => $post_data['zigu_threeds_eci'],
-                'p3ds_cavv' => $post_data['zigu_threeds_cavv'],
-                'p3ds_xid' => $post_data['zigu_threeds_xid']
-            ];
+            if (!empty($post_data['zigu_threeds_dsTransId'])) {
+                $three_ds = [
+                    'p3ds_eci' => $post_data['zigu_threeds_eci'],
+                    'p3ds_cavv' => $post_data['zigu_threeds_cavv'],
+                    'p3ds_transid' => $post_data['zigu_threeds_dsTransId'],
+                    'p3ds_version' => '2'
+                ];
+            } else {
+                $three_ds = [
+                    'p3ds_eci' => $post_data['zigu_threeds_eci'],
+                    'p3ds_cavv' => $post_data['zigu_threeds_cavv'],
+                    'p3ds_xid' => $post_data['zigu_threeds_xid']
+                ];
+            }
         }
         if (!empty($post_data['inoviodirectmethod_installments']) && $post_data['inoviodirectmethod_installments'] != '01') {
             $installments = [

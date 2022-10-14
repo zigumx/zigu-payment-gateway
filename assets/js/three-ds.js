@@ -19,7 +19,13 @@ jQuery(document).ready(function () {
 
     var wc_min_price_3ds = wc_threeds_params.min_price;
 
-    var score = undefined
+    var defaultScore = 100
+    var score = defaultScore
+
+    var defaultRiskProbabilityIndex = 1
+    var riskProbabilityIndex = defaultRiskProbabilityIndex // 1 - high risk, 2 - medium risk, 3 - average, 4 - safe, 5 - very safe
+    var thresholdRiskProbability = 1
+    
 
     var thresholdScore = 50
 
@@ -33,6 +39,7 @@ jQuery(document).ready(function () {
         jQuery('form.checkout').find('[name="zigu_threeds_cavv"]').remove();
         jQuery('form.checkout').find('[name="zigu_threeds_eci"]').remove();
         jQuery('form.checkout').find('[name="zigu_threeds_xid"]').remove();
+        jQuery('form.checkout').find('[name="zigu_threeds_dsTransId"]').remove();
     }
 
     jQuery('body').on('click', 'form.checkout button:submit', function(){
@@ -52,33 +59,30 @@ jQuery(document).ready(function () {
         var total = jQuery('#zigu_checkout_total').val();
         var totalNumber = Number.isNaN(Number.parseInt(total, 10)) ? 0 : Number.parseInt(total, 10);
 
-        threeDS.request3DS({
+        threeDS.request3DSFull({
             number          : card,
             expiryMonth     : expMonth,
             expiryYear      : expYear,
             total           : totalNumber / 100
-        }).then(() => {
-            threeDS.subscribe().then(value => {
-                console.log(value);
-                var cavv = value?.cavv
-                var eci = value?.eci
-                var xid = value?.xid
-                console.log('three ds', cavv, eci, xid)
+        }).then((value) => {
+            console.log(value);
+            var eci = value?.eci
+            // var cavv = value?.cavv
+            // var xid = value?.xid
+            var dsTransId = value?.dsTransId
+            var cavv = value?.authenticationValue
+            console.log('three ds', value)
 
-                if (cavv) {
-                    removeThreeDsInputs();
-                    addValueField('zigu_threeds_cavv', cavv);
-                    addValueField('zigu_threeds_eci', eci);
-                    addValueField('zigu_threeds_xid', xid);
-                    $form.submit();
-                } else {
-                    $form.unblock();
-                }
-            }).catch(function (error) {
-                console.log('error al ejecutar 3ds')
-                console.log(error)
+            if (cavv) {
+                removeThreeDsInputs();
+                addValueField('zigu_threeds_cavv', cavv);
+                addValueField('zigu_threeds_eci', eci);
+                // addValueField('zigu_threeds_xid', xid);
+                addValueField('zigu_threeds_dsTransId', dsTransId);
+                $form.submit();
+            } else {
                 $form.unblock();
-            })
+            }
         }).catch(function (error) {
             console.log('error al ejecutar 3ds')
             console.log(error)
@@ -186,16 +190,24 @@ jQuery(document).ready(function () {
     }
 
     var checkLowScore = function () {
-        var parsedScore = Number.isNaN(Number.parseInt(score)) ? 0 : Number.parseInt(score)
-        console.log('test values', parsedScore);
+        var parsedScore = Number.isNaN(Number.parseInt(score)) ? defaultScore : Number.parseInt(score)
+        var parsedRiskProbabilityIndex = Number.isNaN(Number.parseInt(riskProbabilityIndex)) ? defaultRiskProbabilityIndex : Number.parseInt(riskProbabilityIndex)
+        console.log('test values', parsedScore, parsedRiskProbabilityIndex);
         
         var isLowScore = parsedScore > thresholdScore
-        console.log('is low score', isLowScore)
+        console.log('is low score', parsedScore, thresholdScore, isLowScore)
         if (isLowScore) {
             return true
         } else {
             return false
         }
+        // var isLowScoreProbability = parsedRiskProbabilityIndex >= thresholdRiskProbability
+        // console.log('is low score', parsedRiskProbabilityIndex, thresholdRiskProbability, isLowScoreProbability)
+        // if (isLowScoreProbability) {
+        //     return true
+        // } else {
+        //     return false
+        // }
     }
 
     var decisionMaker = function () {
@@ -208,6 +220,7 @@ jQuery(document).ready(function () {
             getScore()
             return false
         }
+        // return false
         if (checkHighPrice() || checkLowScore()) {
             generateThreeDs()
             return false
@@ -222,13 +235,15 @@ jQuery(document).ready(function () {
         vestaScore (
             function (data) {
                 console.log('success ', data)
-                score = data.RiskScore || 0
+                score = data.RiskScore || defaultScore
+                riskProbabilityIndex = data.RiskProbabilityIndex || defaultRiskProbabilityIndex
                 // check3DS()
                 $form.submit();
             },
             function (error) {
                 console.log('error ', error)
-                score = 0
+                score = defaultScore
+                riskProbabilityIndex = defaultRiskProbabilityIndex
                 // check3DS()
                 $form.submit();
             }
