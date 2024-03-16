@@ -3,7 +3,8 @@ jQuery(document).ready(function () {
     var threeDS = new ThreeDS({
         apiKey  : wc_threeds_params.apiKey,
         host    : wc_threeds_params.host,
-        sandbox : wc_threeds_params.sandbox
+        sandbox : wc_threeds_params.sandbox,
+        version : '2.1.1',
     })
 
     var wc_min_price_3ds = wc_threeds_params.min_price;
@@ -33,33 +34,32 @@ jQuery(document).ready(function () {
         var total = jQuery('#zigu_checkout_total').val();
         var totalNumber = Number.isNaN(Number.parseInt(total, 10)) ? 0 : Number.parseInt(total, 10);
 
-        threeDS.request3DS({
+        threeDS.request3DSFull({
             number          : card,
             expiryMonth     : expMonth,
             expiryYear      : expYear,
-            total           : totalNumber / 100
-        }).then(() => {
-            threeDS.subscribe().then(value => {
-                console.log(value);
-                var cavv = value?.cavv
-                var eci = value?.eci
-                var xid = value?.xid
-                console.log('three ds', cavv, eci, xid)
+            total           : totalNumber / 100,
+            merchantRiskIndicator: {
+                shipIndicator       : '05',
+                deliveryTimeFrame   : '01',
+                reorderItemsInd     : '01'
+            }
+        }).then(value => {
+            console.log(value);
+            var cavv = value?.authenticationValue
+            var eci = value?.eci
+            var xid = value?.dsTransId
+            console.log('three ds', cavv, eci, xid)
 
-                if (cavv) {
-                    removeThreeDsInputs();
-                    addValueField('zigu_threeds_cavv', cavv);
-                    addValueField('zigu_threeds_eci', eci);
-                    addValueField('zigu_threeds_xid', xid);
-                    $form.submit();
-                } else {
-                    $form.unblock();
-                }
-            }).catch(function (error) {
-                console.log('error al ejecutar 3ds')
-                console.log(error)
+            if (cavv) {
+                removeThreeDsInputs();
+                addValueField('zigu_threeds_cavv', cavv);
+                addValueField('zigu_threeds_eci', eci);
+                addValueField('zigu_threeds_xid', xid);
+                $form.submit();
+            } else {
                 $form.unblock();
-            })
+            }
         }).catch(function (error) {
             console.log('error al ejecutar 3ds')
             console.log(error)
