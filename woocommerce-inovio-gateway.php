@@ -3,7 +3,7 @@
  * Plugin Name: Zigu MX Payment Gateway
  * Description: Zigu MX payment gateway provide payment solutions.
  * Author: Zigu MX Payments
- * Version: 6.2.1
+ * Version: 6.2.2
  * Author URI: https://zigu.mx/
  * Plugin URI: https://www.zigu.mx
  * License: GPLv2

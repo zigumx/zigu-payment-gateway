@@ -234,7 +234,8 @@ class class_common_inovio_payment {
             $three_ds = [
                 'p3ds_eci' => $post_data['zigu_threeds_eci'],
                 'p3ds_cavv' => $post_data['zigu_threeds_cavv'],
-                'p3ds_xid' => $post_data['zigu_threeds_xid']
+                'p3ds_transid' => $post_data['zigu_threeds_xid'],
+                'p3ds_version' => '2'
             ];
         }
         if (!empty($post_data['inoviodirectmethod_installments']) && $post_data['inoviodirectmethod_installments'] != '01') {
