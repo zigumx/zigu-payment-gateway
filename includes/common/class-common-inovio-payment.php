@@ -231,12 +231,18 @@ class class_common_inovio_payment {
             $pmt_number = $post_data["inoviodirectmethod_gate_card_numbers"];
         }
         if (!empty($post_data['zigu_threeds_cavv'])) {
+            $binary = base64_decode($post_data['zigu_threeds_cavv']);
+            $zigu_threeds_cavv_hex = bin2hex($binary);
             $three_ds = [
                 'p3ds_eci' => $post_data['zigu_threeds_eci'],
                 'p3ds_cavv' => $post_data['zigu_threeds_cavv'],
                 'p3ds_transid' => $post_data['zigu_threeds_xid'],
+                // 'p3ds_xid' => $post_data['zigu_threeds_xid'],
                 'p3ds_version' => '2'
             ];
+            if ($post_data['zigu_threeds_send_hex'] === 'true') {
+                $three_ds['p3ds_cavv'] = $zigu_threeds_cavv_hex;
+            }
         }
         if (!empty($post_data['inoviodirectmethod_installments']) && $post_data['inoviodirectmethod_installments'] != '01') {
             $installments = [
@@ -266,6 +272,7 @@ class class_common_inovio_payment {
             'ship_addr' => $order->get_shipping_address_1() . ', ' . $order->get_shipping_address_2(),
             'KOUNT_SESSIONID' => $kountSessionId,
         ] + $pmt_key_or_routing_number + $three_ds + $installments;
+        // throw new Error( json_encode( $params ) );
         if( $post_data["payment_method"] == "achinoviomethod" ){
             unset( $params["pmt_expiry"] );
         }
