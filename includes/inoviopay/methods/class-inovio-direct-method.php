@@ -382,6 +382,14 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     $this->common_class->get_product_ids( $order, $this )
                 );
                 $final_params = $params + $this->common_class->get_advaceparam($this);
+
+                $total = (float) $order->get_total();
+                $three_ds_min_price = (float) $this->three_ds_min_price;
+
+                if ($three_ds_min_price < $total && !isset($final_params['p3ds_cavv'])) {
+                    throw new Exception( __( 'Error Missing 3D secure', $this->id ) );
+                }
+
                 $status = 'WC-' . $order_id . '-' . time();
                 $service_config = new InovioServiceConfig( $final_params );
                 $processor = new InovioProcessor( $service_config );
