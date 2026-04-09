@@ -50,13 +50,19 @@ var enter_numeric = function (e) {
 //     var img = document.createElement('img');
 //     img.src = kountHostUrl+"/logo.gif?m="+kountMerchantId+"&s="+kountSessionId;
 //     document.body.appendChild(img);
+//
+//     var kountField = document.getElementById("kountSessionId");
 
 //     document.addEventListener("DOMContentLoaded", function(event){
         
-//         document.getElementById("kountSessionId").value = kountSessionId;
+//         if (kountField) {
+//             kountField.value = kountSessionId;
+//         }
 
 //     });
-//     document.getElementById("kountSessionId").value = kountSessionId;
+//     if (kountField) {
+//         kountField.value = kountSessionId;
+//     }
 //     window.kountSessionId = kountSessionId
 //     window.kountHostUrl = kountHostUrl
 //     window.kountMerchantId = kountMerchantId
