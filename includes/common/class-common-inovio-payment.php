@@ -203,8 +203,11 @@ class class_common_inovio_payment {
         'request_action' => 'CCAUTHCAP',
         'request_currency' => get_woocommerce_currency(),
         'XTL_ORDER_ID' => $order_id,
-        ];                                                        
-        return $params;           
+        ];
+        if ( strtoupper( get_woocommerce_currency() ) === 'USD' ) {
+            $params['request_initiator'] = 'M';
+        }
+        return $params;
     }
 
     /**
@@ -275,6 +278,10 @@ class class_common_inovio_payment {
         // throw new Error( json_encode( $params ) );
         if( $post_data["payment_method"] == "achinoviomethod" ){
             unset( $params["pmt_expiry"] );
+        }
+        if ( strtoupper( get_woocommerce_currency() ) === 'USD' ) {
+            $transaction_type = isset( $post_data['transaction_type'] ) ? $post_data['transaction_type'] : '';
+            $params['request_initiator'] = ( $transaction_type === '' || $transaction_type === 'initial' ) ? 'C' : 'M';
         }
         return $params;
     }
