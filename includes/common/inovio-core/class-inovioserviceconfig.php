@@ -36,7 +36,6 @@ class InovioServiceConfig {
 
 		foreach ( $this->requiredparams as $param ) {
 			if ( empty( $conf[ $param ] ) ) {
-                            die("sdsd");
 				throw new Exception( 'Error in payment processing request, please contact to your service provider.' );
 			}
 		}
@@ -117,13 +116,7 @@ class InovioServiceConfig {
 	 * @return string request post data
 	 */
 	public function to_url_encode( array $requestData ) {
-		$urlEncodedString = '';
-
-		foreach ( $requestData as $key => $value ) {
-			$urlEncodedString .= $key . '=' . $value . '&';
-		}
-
-		return rtrim( $urlEncodedString, '&' );
+		return http_build_query( $requestData );
 	}
 
 } // end Class InovioService

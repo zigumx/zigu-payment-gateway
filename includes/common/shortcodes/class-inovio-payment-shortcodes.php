@@ -88,6 +88,16 @@ class inovio_payment_shortcodes {
                     'required' => __( 'required' ),
                 ),
             ),
+            'merch_acct_id' => array (
+                'title' => __( 'Merchant Account ID' ),
+                'type' => 'text',
+                'description' => __( 'Cuenta de merchant asignada por Zigu MX (merch_acct_id).' ),
+                'default' => '',
+                'desc_tip' => true,
+                'custom_attributes' => array (
+                    'required' => __( 'required' ),
+                ),
+            ),
             'req_product_id' => array (
                 'title' => __( 'Set product Id to purchase product' ),
                 'type' => 'text',

@@ -69,8 +69,8 @@ class class_common_inovio_payment {
         // Getting Service response
         if ( 100 != $parse_result->SERVICE_RESPONSE ) {
             if ( $options->debug == 'yes' ) :
-                $this->inovio_logger( 'Authentication Failed', $this);
-                $this->inovio_logger( $response, $this);
+                $this->inovio_logger( 'Authentication Failed', $options);
+                $this->inovio_logger( $response, $options);
             endif;
 
             return false;
@@ -94,8 +94,8 @@ class class_common_inovio_payment {
         // Getting Service response
         if ( 100 != $parse_result->SERVICE_RESPONSE ) {
             if ( $options->debug == 'yes' ) :
-                $this->inovio_logger( 'Authentication Failed', $this);
-                $this->inovio_logger( $response, $this);
+                $this->inovio_logger( 'Authentication Failed', $options);
+                $this->inovio_logger( $response, $options);
             endif;
 
             return false;
@@ -127,6 +127,9 @@ class class_common_inovio_payment {
             }
             $final_request_params[$reqKey] = trim($reqParamVal);
         }
+        if ( ! empty( $options->merch_acct_id ) ) {
+            $final_request_params['merch_acct_id'] = trim( $options->merch_acct_id );
+        }
         return $final_request_params;
     }
 
@@ -153,6 +156,9 @@ class class_common_inovio_payment {
                 );
             }
             $final_request_params[$reqKey] = trim($reqParamVal);
+        }
+        if ( ! empty( $options->merch_acct_id ) ) {
+            $final_request_params['merch_acct_id'] = trim( $options->merch_acct_id );
         }
         return $final_request_params;
     }
@@ -203,8 +209,11 @@ class class_common_inovio_payment {
         'request_action' => 'CCAUTHCAP',
         'request_currency' => get_woocommerce_currency(),
         'XTL_ORDER_ID' => $order_id,
-        ];                                                        
-        return $params;           
+        ];
+        if ( strtoupper( get_woocommerce_currency() ) === 'USD' ) {
+            $params['request_initiator'] = 'M';
+        }
+        return $params;
     }
 
     /**
@@ -275,6 +284,10 @@ class class_common_inovio_payment {
         // throw new Error( json_encode( $params ) );
         if( $post_data["payment_method"] == "achinoviomethod" ){
             unset( $params["pmt_expiry"] );
+        }
+        if ( strtoupper( get_woocommerce_currency() ) === 'USD' ) {
+            $transaction_type = isset( $post_data['transaction_type'] ) ? $post_data['transaction_type'] : '';
+            $params['request_initiator'] = ( $transaction_type === '' || $transaction_type === 'initial' ) ? 'C' : 'M';
         }
         return $params;
     }

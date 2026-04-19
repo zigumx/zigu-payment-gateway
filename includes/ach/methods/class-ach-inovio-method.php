@@ -46,6 +46,7 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
         $this->site_id = $this->get_option( 'site_id' );
         $this->req_username = $this->get_option( 'req_username' );
         $this->req_password = $this->get_option( 'req_password' );
+        $this->merch_acct_id = $this->get_option( 'merch_acct_id' );
         $this->debug = $this->get_option( 'debug' );
         $this->debug = 'yes' == $this->get_option( 'debug', 'no' );
         $this->req_product_id = $this->get_option( 'req_product_id' );
