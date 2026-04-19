@@ -69,8 +69,8 @@ class class_common_inovio_payment {
         // Getting Service response
         if ( 100 != $parse_result->SERVICE_RESPONSE ) {
             if ( $options->debug == 'yes' ) :
-                $this->inovio_logger( 'Authentication Failed', $this);
-                $this->inovio_logger( $response, $this);
+                $this->inovio_logger( 'Authentication Failed', $options);
+                $this->inovio_logger( $response, $options);
             endif;
 
             return false;
@@ -94,8 +94,8 @@ class class_common_inovio_payment {
         // Getting Service response
         if ( 100 != $parse_result->SERVICE_RESPONSE ) {
             if ( $options->debug == 'yes' ) :
-                $this->inovio_logger( 'Authentication Failed', $this);
-                $this->inovio_logger( $response, $this);
+                $this->inovio_logger( 'Authentication Failed', $options);
+                $this->inovio_logger( $response, $options);
             endif;
 
             return false;
@@ -127,6 +127,9 @@ class class_common_inovio_payment {
             }
             $final_request_params[$reqKey] = trim($reqParamVal);
         }
+        if ( ! empty( $options->merch_acct_id ) ) {
+            $final_request_params['merch_acct_id'] = trim( $options->merch_acct_id );
+        }
         return $final_request_params;
     }
 
@@ -153,6 +156,9 @@ class class_common_inovio_payment {
                 );
             }
             $final_request_params[$reqKey] = trim($reqParamVal);
+        }
+        if ( ! empty( $options->merch_acct_id ) ) {
+            $final_request_params['merch_acct_id'] = trim( $options->merch_acct_id );
         }
         return $final_request_params;
     }
