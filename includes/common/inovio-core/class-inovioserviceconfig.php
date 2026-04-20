@@ -1,13 +1,13 @@
 <?php
 /**
- * Class InovioServiceConfig
+ * Class InovioRebillServiceConfig
  *
- * InovioServiceConfig loads the SDK configuration file and
+ * InovioRebillServiceConfig loads the SDK configuration file and
  * hands out appropriate config params to other classes
  *
  * @package Inovio
  */
-class InovioServiceConfig {
+class InovioRebillServiceConfig {
 
 	/**
 	 * API endpoint
@@ -32,7 +32,7 @@ class InovioServiceConfig {
 	 */
 	public function __construct( $conf = array() ) {
 
-		$this->curl = new InovioConnection();
+		$this->curl = new InovioRebillConnection();
 
 		foreach ( $this->requiredparams as $param ) {
 			if ( empty( $conf[ $param ] ) ) {

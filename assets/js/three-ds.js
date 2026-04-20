@@ -1,21 +1,21 @@
 jQuery(document).ready(function () {
   // Three DS
   var threeDS = new ThreeDS({
-    apiKey: wc_threeds_params.apiKey,
-    host: wc_threeds_params.host,
-    sandbox: wc_threeds_params.sandbox,
+    apiKey: wc_threeds_rebill_params.apiKey,
+    host: wc_threeds_rebill_params.host,
+    sandbox: wc_threeds_rebill_params.sandbox,
     version: "2.1.1",
   });
 
-  var wc_min_price_3ds = wc_threeds_params.min_price;
+  var wc_min_price_3ds = wc_threeds_rebill_params.min_price;
 
   var $form = jQuery("form.checkout,form#order_review");
 
   var removeThreeDsInputs = function () {
-    jQuery("form.checkout").find('[name="zigu_threeds_cavv"]').remove();
-    jQuery("form.checkout").find('[name="zigu_threeds_eci"]').remove();
-    jQuery("form.checkout").find('[name="zigu_threeds_xid"]').remove();
-    jQuery("form.checkout").find('[name="zigu_threeds_send_hex"]').remove();
+    jQuery("form.checkout").find('[name="zigu_rebill_threeds_cavv"]').remove();
+    jQuery("form.checkout").find('[name="zigu_rebill_threeds_eci"]').remove();
+    jQuery("form.checkout").find('[name="zigu_rebill_threeds_xid"]').remove();
+    jQuery("form.checkout").find('[name="zigu_rebill_threeds_send_hex"]').remove();
   };
 
   jQuery("body").on("click", "form.checkout button:submit", function () {
@@ -33,10 +33,10 @@ jQuery(document).ready(function () {
   };
 
   var generateThreeDs = function () {
-    var card = jQuery("#inoviodirectmethod_gate_card_numbers").val();
+    var card = jQuery("#inoviodirectmethod_rebill_gate_card_numbers").val();
     var expMonth = jQuery("#cc-exp-month").val();
     var expYear = jQuery("#cc-exp-year").val().substr(2);
-    var total = jQuery("#zigu_checkout_total").val();
+    var total = jQuery("#zigu_rebill_checkout_total").val();
     var totalNumber = Number.isNaN(Number.parseInt(total, 10))
       ? 0
       : Number.parseInt(total, 10);
@@ -62,10 +62,10 @@ jQuery(document).ready(function () {
 
         if (cavv) {
           removeThreeDsInputs();
-          addValueField("zigu_threeds_cavv", cavv);
-          addValueField("zigu_threeds_eci", eci);
-          addValueField("zigu_threeds_xid", xid);
-          addValueField("zigu_threeds_send_hex", card.charAt(0) === "4");
+          addValueField("zigu_rebill_threeds_cavv", cavv);
+          addValueField("zigu_rebill_threeds_eci", eci);
+          addValueField("zigu_rebill_threeds_xid", xid);
+          addValueField("zigu_rebill_threeds_send_hex", card.charAt(0) === "4");
           $form.submit();
         } else {
           $form.unblock();
@@ -82,7 +82,7 @@ jQuery(document).ready(function () {
     console.log("form.checkout");
     if (
       jQuery("input[name=payment_method]:checked").val() !==
-      "inoviodirectmethod"
+      "inoviodirectmethod_rebill"
     ) {
       return true;
     }
@@ -100,7 +100,7 @@ jQuery(document).ready(function () {
       },
     });
 
-    if ($form.find('[name="zigu_threeds_cavv"]').length) {
+    if ($form.find('[name="zigu_rebill_threeds_cavv"]').length) {
       return true;
     }
 
@@ -109,7 +109,7 @@ jQuery(document).ready(function () {
     // }
     // addValueField('zigu_token', '');
 
-    var total = jQuery("#zigu_checkout_total").val();
+    var total = jQuery("#zigu_rebill_checkout_total").val();
     var totalNumber = Number.isNaN(Number.parseInt(total, 10))
       ? 0
       : Number.parseInt(total, 10);

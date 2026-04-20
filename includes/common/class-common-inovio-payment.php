@@ -7,11 +7,11 @@
  */
 
 /**
- * Description of class_common_inovio_payment
+ * Description of Class_Common_Inovio_Rebill_Payment
  *
  * @author Inovio Payments
  */
-class class_common_inovio_payment {
+class Class_Common_Inovio_Rebill_Payment {
 
     /**
      * Use to get advance fields
@@ -60,8 +60,8 @@ class class_common_inovio_payment {
      * @return boolean
      */
     public function merchant_authorization( $options ) {
-        $service_config = new InovioServiceConfig( $this->merchant_credential( $options ) );
-        $processor = new InovioProcessor( $service_config );
+        $service_config = new InovioRebillServiceConfig( $this->merchant_credential( $options ) );
+        $processor = new InovioRebillProcessor( $service_config );
         // authorize user
         $response = $processor->set_methodname( 'authenticate' )->get_response();
         // decode json data into object
@@ -85,8 +85,8 @@ class class_common_inovio_payment {
      * @return boolean
      */
     public function merchant_authorization_amex( $options ) {
-        $service_config = new InovioServiceConfig( $this->merchant_credential_amex( $options ) );
-        $processor = new InovioProcessor( $service_config );
+        $service_config = new InovioRebillServiceConfig( $this->merchant_credential_amex( $options ) );
+        $processor = new InovioRebillProcessor( $service_config );
         // authorize user
         $response = $processor->set_methodname( 'authenticate_amex' )->get_response();
         // decode json data into object
@@ -232,31 +232,31 @@ class class_common_inovio_payment {
         $pmt_number = "";
         $kountSessionId = $post_data['KOUNT_SESSIONID'];
         $installments = [];
-        if ( !empty( $post_data["ach_inovio_routing_number"] ) && strlen( $post_data["ach_inovio_routing_number"] ) > 3 && $post_data["payment_method"] == "achinoviomethod" ) {
-            $pmt_key_or_routing_number = ["bank_identifier" => wc_clean( $post_data["ach_inovio_routing_number"] )];
-            $pmt_number = $post_data["ach_inovio_account_number"];
-        } elseif ( !empty( $post_data["inoviodirectmethod_gate_card_cvv"] ) && strlen( $post_data["inoviodirectmethod_gate_card_cvv"]) <= 4 && $post_data["payment_method"] == "inoviodirectmethod" ) {
-            $pmt_key_or_routing_number = ["pmt_key" => wc_clean( $post_data["inoviodirectmethod_gate_card_cvv"] )];
-            $pmt_number = $post_data["inoviodirectmethod_gate_card_numbers"];
+        if ( !empty( $post_data["ach_inovio_rebill_routing_number"] ) && strlen( $post_data["ach_inovio_rebill_routing_number"] ) > 3 && $post_data["payment_method"] == "achinoviomethod_rebill" ) {
+            $pmt_key_or_routing_number = ["bank_identifier" => wc_clean( $post_data["ach_inovio_rebill_routing_number"] )];
+            $pmt_number = $post_data["ach_inovio_rebill_account_number"];
+        } elseif ( !empty( $post_data["inoviodirectmethod_rebill_gate_card_cvv"] ) && strlen( $post_data["inoviodirectmethod_rebill_gate_card_cvv"]) <= 4 && $post_data["payment_method"] == "inoviodirectmethod_rebill" ) {
+            $pmt_key_or_routing_number = ["pmt_key" => wc_clean( $post_data["inoviodirectmethod_rebill_gate_card_cvv"] )];
+            $pmt_number = $post_data["inoviodirectmethod_rebill_gate_card_numbers"];
         }
-        if (!empty($post_data['zigu_threeds_cavv'])) {
-            $binary = base64_decode($post_data['zigu_threeds_cavv']);
+        if (!empty($post_data['zigu_rebill_threeds_cavv'])) {
+            $binary = base64_decode($post_data['zigu_rebill_threeds_cavv']);
             $zigu_threeds_cavv_hex = bin2hex($binary);
             $three_ds = [
-                'p3ds_eci' => $post_data['zigu_threeds_eci'],
-                'p3ds_cavv' => $post_data['zigu_threeds_cavv'],
-                'p3ds_transid' => $post_data['zigu_threeds_xid'],
-                // 'p3ds_xid' => $post_data['zigu_threeds_xid'],
+                'p3ds_eci' => $post_data['zigu_rebill_threeds_eci'],
+                'p3ds_cavv' => $post_data['zigu_rebill_threeds_cavv'],
+                'p3ds_transid' => $post_data['zigu_rebill_threeds_xid'],
+                // 'p3ds_xid' => $post_data['zigu_rebill_threeds_xid'],
                 'p3ds_version' => '2'
             ];
-            if ($post_data['zigu_threeds_send_hex'] === 'true') {
+            if ($post_data['zigu_rebill_threeds_send_hex'] === 'true') {
                 $three_ds['p3ds_cavv'] = $zigu_threeds_cavv_hex;
             }
         }
-        if (!empty($post_data['inoviodirectmethod_installments']) && $post_data['inoviodirectmethod_installments'] != '01') {
+        if (!empty($post_data['inoviodirectmethod_rebill_installments']) && $post_data['inoviodirectmethod_rebill_installments'] != '01') {
             $installments = [
                 'request_installment' => 1,
-                'PROC_UDF01' => '00|'.$post_data['inoviodirectmethod_installments'].'|03'
+                'PROC_UDF01' => '00|'.$post_data['inoviodirectmethod_rebill_installments'].'|03'
             ];
         }
         $params=  [
@@ -282,12 +282,19 @@ class class_common_inovio_payment {
             'KOUNT_SESSIONID' => $kountSessionId,
         ] + $pmt_key_or_routing_number + $three_ds + $installments;
         // throw new Error( json_encode( $params ) );
-        if( $post_data["payment_method"] == "achinoviomethod" ){
+        if( $post_data["payment_method"] == "achinoviomethod_rebill" ){
             unset( $params["pmt_expiry"] );
         }
         if ( strtoupper( get_woocommerce_currency() ) === 'USD' ) {
             $transaction_type = isset( $post_data['transaction_type'] ) ? $post_data['transaction_type'] : '';
-            $params['request_initiator'] = ( $transaction_type === '' || $transaction_type === 'initial' ) ? 'C' : 'M';
+            // Por defecto "M". Si transaction_type es "initial", "C". Si es "rebill", "M" (explícito aunque sea redundante).
+            if ($transaction_type === 'initial') {
+                $params['request_initiator'] = 'C';
+            } else if ($transaction_type === 'rebill') {
+                $params['request_initiator'] = 'M';
+            } else {
+                $params['request_initiator'] = 'M';
+            }
         }
         return $params;
     }

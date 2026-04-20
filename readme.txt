@@ -1,8 +1,8 @@
-﻿=== Zigu MX Payment Gateway ===
+﻿=== Zigu MX Payment Gateway Rebill ===
 Contributors: rsepulvedazigu
 Tags: zigu, payments, gateway
-Plugin Name: Zigu MX Payment Gateway
-Description: Zigu MX Payment Gateway
+Plugin Name: Zigu MX Payment Gateway Rebill
+Description: Zigu MX Payment Gateway Rebill
 Author: Zigu MX Payments
 Author URI: https://zigu.mx/
 Plugin URI: https://www.zigu.mx

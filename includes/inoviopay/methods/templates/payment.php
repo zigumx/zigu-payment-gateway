@@ -3,18 +3,18 @@
     $order_price_cents = $woocommerce->cart->total * 100;
     // echo $order_price_cents;
 ?>
-<fieldset class="inoviodirectmethod_gate_form">
-    <p class="form-row form-row-wide validate-required inoviodirectmethod_gate_card_number_wrap">
+<fieldset class="inoviodirectmethod_rebill_gate_form">
+    <p class="form-row form-row-wide validate-required inoviodirectmethod_rebill_gate_card_number_wrap">
         <label
-            for="inoviodirectmethod_gate_card_numbers"
+            for="inoviodirectmethod_rebill_gate_card_numbers"
         >
             Número de tarjeta
         </label>
         <input
             class="input-text"
-            name="inoviodirectmethod_gate_card_numbers"
+            name="inoviodirectmethod_rebill_gate_card_numbers"
             title="Please enter valid card no"
-            id="inoviodirectmethod_gate_card_numbers"
+            id="inoviodirectmethod_rebill_gate_card_numbers"
             pattern="^0[1-16]|[1-16]\d$"
             maxlength="16"
             size="16"
@@ -22,14 +22,14 @@
             required
         >
         <span
-            id="inoviodirectmethod_gate_card_type_image"
+            id="inoviodirectmethod_rebill_gate_card_type_image"
         ></span>
     </p>
     <p
         class="form-row form-row-first validate-required"
     >
         <label
-            for="inoviodirectmethod_gate_card_expiration"
+            for="inoviodirectmethod_rebill_gate_card_expiration"
         >
             Fecha de expiración
         </label>
@@ -71,16 +71,16 @@
         class="form-row form-row-last validate-required"
     >
         <label
-            for="inoviodirectmethod_gate_card_csc"
+            for="inoviodirectmethod_rebill_gate_card_csc"
         >
             Código de seguridad
         </label>
         <input
             type="password"
             class="input-text"
-            id="inoviodirectmethod_gate_card_cvv"
+            id="inoviodirectmethod_rebill_gate_card_cvv"
             title="Please enter valid card security no"
-            name="inoviodirectmethod_gate_card_cvv"
+            name="inoviodirectmethod_rebill_gate_card_cvv"
             maxlength="4"
             size="4"
             pattern="[0-9]+"
@@ -93,7 +93,7 @@
         style="display: none;"
     >
         <label
-            for="inoviodirectmethod_gate_card_csc"
+            for="inoviodirectmethod_rebill_gate_card_csc"
         >
             Kount Session ID
         </label>
@@ -112,14 +112,14 @@
             class="form-row form-row-first validate-required"
         >
             <label
-                for="inoviodirectmethod_gate_card_expiration"
+                for="inoviodirectmethod_rebill_gate_card_expiration"
             >
                 Meses sin intereses
             </label>
             <select
                 id="cc-installments"
                 class="txt"
-                name="inoviodirectmethod_installments"
+                name="inoviodirectmethod_rebill_installments"
             >
                 <option value="01">01</option>
                 <?php
@@ -137,9 +137,9 @@
     <input
         type="hidden"
         class="input-text"
-        id="zigu_checkout_total"
+        id="zigu_rebill_checkout_total"
         title="zigu checkout total"
-        name="zigu_checkout_total"
+        name="zigu_rebill_checkout_total"
         value="<?php echo $order_price_cents; ?>"
     />
     <div class="clear"></div>

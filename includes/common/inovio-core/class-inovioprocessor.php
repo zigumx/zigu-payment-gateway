@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Class InovioProcessor
+ * Class InovioRebillProcessor
  *
- * InovioProcessor process the API Call.
+ * InovioRebillProcessor process the API Call.
  *
  * @package Inovio
  */
-class InovioProcessor {
+class InovioRebillProcessor {
 
     /**
-     * InovioServiceConfig object
+     * InovioRebillServiceConfig object
      */
     private $service_config;
 
@@ -27,7 +27,7 @@ class InovioProcessor {
     /**
      * default Constructor
      */
-    public function __construct( InovioServiceConfig $service_config ) {
+    public function __construct( InovioRebillServiceConfig $service_config ) {
         $this->service_config = $service_config;
     }
 

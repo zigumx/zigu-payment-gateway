@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Class Inovio_Direct_Method
+ * Class Ach_Inovio_Method_Rebill
  * Use to extend WC_Payment_Gateway
  */
-class Ach_Inovio_Method extends WC_Payment_Gateway {
+class Ach_Inovio_Method_Rebill extends WC_Payment_Gateway {
 
     public static $inovio_direct_api_log = false;
 
@@ -13,8 +13,8 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
      */
     public function __construct() {
         // Make unique name for inovio direct method
-        $this->id = 'achinoviomethod';
-        $this->common_class = new class_common_inovio_payment();
+        $this->id = 'achinoviomethod_rebill';
+        $this->common_class = new Class_Common_Inovio_Rebill_Payment();
         // Bool. Can be set to true if you want payment fields to show on the checkout (if doing a direct integration)
         $this->has_fields = true;
         // Title of the payment method shown on the admin page.
@@ -51,7 +51,7 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
         $this->debug = 'yes' == $this->get_option( 'debug', 'no' );
         $this->req_product_id = $this->get_option( 'req_product_id' );
         $this->routing_number_validate = $this->get_option( "routing_number_validate" );
-        add_action( 'wp_enqueue_scripts', array( $this, 'inovio_ach_payment_script' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'inovio_rebill_ach_payment_script' ) );
 
         // Check WooCommerce version
         if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '>=' ) ) {
@@ -68,14 +68,14 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
      *
      * @access public
      */
-    public function inovio_ach_payment_script() {
+    public function inovio_rebill_ach_payment_script() {
 
         wp_enqueue_script(
-                'ach-inovio-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-ach-script.js', array ( 'jquery' )
+                'ach-inovio-rebill-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-ach-script.js', array ( 'jquery' )
         );
-        $achInovioPlugindir = plugins_url()."/".explode("/", plugin_basename( __file__ ))[0];
-        wp_localize_script( 'ach-inovio-gateway-js', 'achInovioPlugindir', $achInovioPlugindir );
-        wp_localize_script( 'ach-inovio-gateway-js', 'ach_ajax_scripts', array (
+        $achInovioRebillPlugindir = plugins_url()."/".explode("/", plugin_basename( __file__ ))[0];
+        wp_localize_script( 'ach-inovio-rebill-gateway-js', 'achInovioRebillPlugindir', $achInovioRebillPlugindir );
+        wp_localize_script( 'ach-inovio-rebill-gateway-js', 'ach_rebill_ajax_scripts', array (
             'ajax_url' => admin_url( 'admin-ajax.php' ),
             'ach_validate_routing_url' => $this->routing_number_validate
          ) );
@@ -119,7 +119,7 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
             $this->common_class->inovio_logger( "transaction_id-".$transaction_id, $this );
             $this->common_class->inovio_logger( "order_id-".$order_id, $this );
 
-            if ( get_post_meta( $order_id, '_payment_method', true ) != 'achinoviomethod' || empty( $transaction_id ) ) {
+            if ( get_post_meta( $order_id, '_payment_method', true ) != 'achinoviomethod_rebill' || empty( $transaction_id ) ) {
                 return;
             }
             
@@ -132,8 +132,8 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
                     )
             );
 
-            $service_config = new InovioServiceConfig( $params );
-            $processor = new InovioProcessor( $service_config );
+            $service_config = new InovioRebillServiceConfig( $params );
+            $processor = new InovioRebillProcessor( $service_config );
 
             // Set method ccreverse
             $response = $processor->set_methodname( 'ach_credit' )->get_response();
@@ -165,7 +165,7 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
 
         $order = new WC_Order( $order_id );
         global $wpdb;
-        $qry = "SELECT sum( ach_inovio_refunded_amount ) as  already_refunded_amount from {$wpdb->prefix}ach_inovio_refunded as t1 WHERE t1.ach_inovio_order_id=$order_id";
+        $qry = "SELECT sum( ach_inovio_rebill_refunded_amount ) as  already_refunded_amount from {$wpdb->prefix}ach_inovio_rebill_refunded as t1 WHERE t1.ach_inovio_order_id=$order_id";
         $resultset = $wpdb->prepare( get_results( $qry, OBJECT ) );
 
         return $resultset[0]->already_refunded_amount;
@@ -181,9 +181,9 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
     public function ach_insert_refunded_data( $order_id = null, $amount = null ) {
         global $wpdb;
         $wpdb->insert(
-                $wpdb->prefix . 'ach_inovio_refunded', array (
+                $wpdb->prefix . 'ach_inovio_rebill_refunded', array (
             'ach_inovio_order_id' => $order_id,
-            'ach_inovio_refunded_amount' => $amount,
+            'ach_inovio_rebill_refunded_amount' => $amount,
                 ), array (
             '%s',
             '%f',
@@ -195,7 +195,7 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
      * Create form to configure merchant information
      */
     public function init_form_fields() {
-        $direct_object = new inovio_payment_shortcodes();
+        $direct_object = new Inovio_Rebill_Payment_Shortcodes();
         $this->form_fields = $direct_object->inovio_admin_setting_form();
     }
 
@@ -207,7 +207,7 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
         if ( !empty( $this->description ) ) {
             echo wpautop( wptexturize( $this->description ) );
         }
-        echo do_shortcode( '[ach_inovio_checkoutform]' );
+        echo do_shortcode( '[ach_inovio_checkoutform_rebill]' );
     }
 
     /**
@@ -221,8 +221,8 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
         global $woocommerce;
 
         $order = wc_get_order( $order_id );
-        $routing_number = !empty( wc_clean( $_POST['ach_inovio_routing_number'] ) ) ? str_replace(array( ' ', '-' ), '', woocommerce_clean( $_POST['ach_inovio_routing_number'] ) ) : '';
-        $account_number = !empty( wc_clean( $_POST['ach_inovio_account_number'] ) ) ? woocommerce_clean( $_POST['ach_inovio_account_number'] ) : '';
+        $routing_number = !empty( wc_clean( $_POST['ach_inovio_rebill_routing_number'] ) ) ? str_replace(array( ' ', '-' ), '', woocommerce_clean( $_POST['ach_inovio_rebill_routing_number'] ) ) : '';
+        $account_number = !empty( wc_clean( $_POST['ach_inovio_rebill_account_number'] ) ) ? woocommerce_clean( $_POST['ach_inovio_rebill_account_number'] ) : '';
         try {
             if ( empty( $account_number ) ) {
                 throw new Exception( __( 'Please enter account number', $this->id ) );
@@ -256,8 +256,8 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
 
                 $status = 'WC-' . $order_id . '-' . time();
 
-                $service_config = new InovioServiceConfig( $params );
-                $processor = new InovioProcessor( $service_config );
+                $service_config = new InovioRebillServiceConfig( $params );
+                $processor = new InovioRebillProcessor( $service_config );
 
                 // Set method auth and capture
                 $response = $processor->set_methodname( 'ach_auth_and_capture' )->get_response();
@@ -355,7 +355,7 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
 
 }
 
-// end class Inovio_Direct_Method
+// end class Ach_Inovio_Method_Rebill
 
 /**
  * Use to load Custom Gateway extention into WooCommerce
@@ -363,11 +363,11 @@ class Ach_Inovio_Method extends WC_Payment_Gateway {
  * @param array $method
  * @return array $method
  */
-function add_ach_inovio_class( $method ) {
-    $method[] = 'Ach_Inovio_Method';
+function add_ach_inovio_rebill_class( $method ) {
+    $method[] = 'Ach_Inovio_Method_Rebill';
 
     return $method;
 }
 
 // add Inovio Payment Gateway using hooks woocommerce_payment_gateways
-add_filter( 'woocommerce_payment_gateways', 'add_ach_inovio_class' );
+add_filter( 'woocommerce_payment_gateways', 'add_ach_inovio_rebill_class' );

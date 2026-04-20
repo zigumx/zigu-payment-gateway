@@ -9,17 +9,17 @@ jQuery(document).ready(function () {
 
     //Restrict to enter Character
 
-    jQuery(document).on('keypress', '#ach_inovio_routing_number', enter_numberic_with_hyphen);
-    jQuery(document).on('cut copy paste', "#ach_inovio_routing_number", restrict_cut_copy_paste);
-    jQuery(document).on('keyup', '#ach_inovio_routing_number', check_valid_routing_number);
+    jQuery(document).on('keypress', '#ach_inovio_rebill_routing_number', enter_numberic_with_hyphen);
+    jQuery(document).on('cut copy paste', "#ach_inovio_rebill_routing_number", restrict_cut_copy_paste);
+    jQuery(document).on('keyup', '#ach_inovio_rebill_routing_number', check_valid_routing_number);
 
-    jQuery(document).on('keypress', '#ach_inovio_account_number', ach_enter_numeric);
-    jQuery(document).on('cut copy paste', '#ach_inovio_account_number', restrict_cut_copy_paste);
+    jQuery(document).on('keypress', '#ach_inovio_rebill_account_number', ach_enter_numeric);
+    jQuery(document).on('cut copy paste', '#ach_inovio_rebill_account_number', restrict_cut_copy_paste);
 
-    jQuery(document).on('keypress', '#ach_inovio_confirm_account_number', ach_enter_numeric);
-    jQuery(document).on('cut copy paste', '#ach_inovio_confirm_account_number', restrict_cut_copy_paste);
+    jQuery(document).on('keypress', '#ach_inovio_rebill_confirm_account_number', ach_enter_numeric);
+    jQuery(document).on('cut copy paste', '#ach_inovio_rebill_confirm_account_number', restrict_cut_copy_paste);
 
-    jQuery(document).on('keyup', '#ach_inovio_account_number, #ach_inovio_confirm_account_number', match_account_number);
+    jQuery(document).on('keyup', '#ach_inovio_rebill_account_number, #ach_inovio_rebill_confirm_account_number', match_account_number);
 
     jQuery(document).on('click', "#place_order", inovio_place_order);
 
@@ -30,7 +30,7 @@ jQuery(document).ready(function () {
             message: null,
             overlayCSS: {
                 'background': '#fff',
-                'background-image': achInovioPlugindir + "/assets/img/FhHRx.gif",
+                'background-image': achInovioRebillPlugindir + "/assets/img/FhHRx.gif",
                 'background-repeat': 'no-repeat',
                 'background-position': 'center',
                 'opacity': 0.6
@@ -44,15 +44,15 @@ let routing_no_status = false;
 
 let check_valid_routing_number = function () {
 
-    let routing_number = jQuery('#ach_inovio_routing_number').val();
+    let routing_number = jQuery('#ach_inovio_rebill_routing_number').val();
 
-    let validate_routing_url = ach_ajax_scripts.ach_validate_routing_url;
+    let validate_routing_url = ach_rebill_ajax_scripts.ach_validate_routing_url;
 
 
     if ((validate_routing_url = !null && validate_routing_url != undefined) || routing_number != null && routing_number != undefined) {
         jQuery.ajax({
             type: "GET",
-            url: ach_ajax_scripts.ach_validate_routing_url + routing_number,
+            url: ach_rebill_ajax_scripts.ach_validate_routing_url + routing_number,
             success: function (data) {
                 if (data.message == "OK") {
                     routing_no_status = true;
@@ -79,7 +79,7 @@ let check_valid_routing_number = function () {
 
 let inovio_place_order = function (e) {
 
-    if (jQuery("#payment_method_achinoviomethod").is(":checked")) {
+    if (jQuery("#payment_method_achinoviomethod_rebill").is(":checked")) {
         check_valid_routing_number();
         match_account_number();
         if (check_status === true && routing_no_status == true) {
@@ -94,8 +94,8 @@ let inovio_place_order = function (e) {
 
 let match_account_number = function () {
 
-    let account_number = jQuery("#ach_inovio_account_number").val();
-    let confirm_number = jQuery("#ach_inovio_confirm_account_number").val();
+    let account_number = jQuery("#ach_inovio_rebill_account_number").val();
+    let confirm_number = jQuery("#ach_inovio_rebill_confirm_account_number").val();
     if (account_number.length < 6 || confirm_number < 6) {
         check_status = false;
         jQuery("#account_matched_message").html("account number should be 6 digit").css("color", "#a00");

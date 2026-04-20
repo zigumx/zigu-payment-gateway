@@ -7,7 +7,7 @@
  */
 
 /**
- * Description of Woocommerce_Inovio_Gateway
+ * Description of Woocommerce_Inovio_Rebill_Gateway
  *
  * @author Inovio Payments
  */
@@ -15,9 +15,9 @@ include plugin_dir_path( __FILE__ ) . '../common/shortcodes/class-inovio-payment
 include plugin_dir_path( __FILE__ ) . 'methods/class-inovio-direct-method.php';
 
 /**
- * Woocommerce_Inovio_Gateway Class
+ * Woocommerce_Inovio_Rebill_Gateway Class
  */
-class Woocommerce_Inovio_Gateway extends Inovio_Direct_Method {
+class Woocommerce_Inovio_Rebill_Gateway extends Inovio_Direct_Method_Rebill {
 
     /**
      *  Default constructor to set default parameters and methods.
@@ -28,7 +28,7 @@ class Woocommerce_Inovio_Gateway extends Inovio_Direct_Method {
         // add css in Inovio gateway
         add_action( 'init', array( $this, 'inovio_direct_payment_style' ) );
         parent::__construct();
-       
+
         add_action( 'init', array( $this, 'inovio_session' ) );
     }
 
@@ -38,9 +38,9 @@ class Woocommerce_Inovio_Gateway extends Inovio_Direct_Method {
      * @access public
      */
     public function inovio_direct_payment_script() {
-        wp_enqueue_script( 'inovio-type-detection' );
+        wp_enqueue_script( 'inovio-rebill-type-detection' );
         wp_enqueue_script(
-                'inovio-type-detection', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array( 'jquery' )
+                'inovio-rebill-type-detection', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array( 'jquery' )
         );
     }
 
@@ -50,9 +50,9 @@ class Woocommerce_Inovio_Gateway extends Inovio_Direct_Method {
      * @access public
      */
     public function inovio_direct_payment_style() {
-        wp_enqueue_style( 'inovio-type-detection-css' );
+        wp_enqueue_style( 'inovio-rebill-type-detection-css' );
         wp_enqueue_style(
-                'inovio-type-detection-css', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/css/inovio-style.css'
+                'inovio-rebill-type-detection-css', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/css/inovio-style.css'
         );
     }
 
@@ -70,4 +70,4 @@ class Woocommerce_Inovio_Gateway extends Inovio_Direct_Method {
 
 }
 
-new Woocommerce_Inovio_Gateway();
+new Woocommerce_Inovio_Rebill_Gateway();

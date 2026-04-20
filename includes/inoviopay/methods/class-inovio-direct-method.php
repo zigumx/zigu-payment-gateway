@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Class Inovio_Direct_Method
+ * Class Inovio_Direct_Method_Rebill
  * Use to extend WC_Payment_Gateway
  */
-class Inovio_Direct_Method extends WC_Payment_Gateway {
+class Inovio_Direct_Method_Rebill extends WC_Payment_Gateway {
 
     public static $inovio_direct_api_log = false;
     /**
@@ -12,7 +12,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
      */
     public function __construct() {
         // Make unique name for inovio direct method
-        $this->id = 'inoviodirectmethod';
+        $this->id = 'inoviodirectmethod_rebill';
 
         // Bool. Can be set to true if you want payment fields to show on the checkout (if doing a direct integration)
         $this->has_fields = true;
@@ -76,8 +76,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             ];
         }
         
-        $this->common_class = new class_common_inovio_payment();
-        add_action( 'wp_enqueue_scripts', array( $this, 'inovio_payment_script' ) );
+        $this->common_class = new Class_Common_Inovio_Rebill_Payment();
+        add_action( 'wp_enqueue_scripts', array( $this, 'inovio_rebill_payment_script' ) );
 
         // Check WooCommerce version
         if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '>=' ) ) {
@@ -94,25 +94,25 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
      *
      * @access public
      */
-    public function inovio_payment_script() {
+    public function inovio_rebill_payment_script() {
         if (!is_checkout()) {
             return;
         }
         
         wp_enqueue_script(
-            'inovio-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array ( 'jquery' )
+            'inovio-rebill-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array ( 'jquery' )
         );
         wp_enqueue_script(
-            'zigu-three-ds', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/zigu-three-ds.js', array ( 'jquery' )
+            'zigu-rebill-three-ds', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/zigu-three-ds.js', array ( 'jquery' )
         );
         wp_enqueue_script(
-            'three-ds', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/three-ds.js', array ( 'jquery' )
+            'rebill-three-ds', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/three-ds.js', array ( 'jquery' )
         );
 
-        $inovioPlugindir = plugins_url()."/".explode("/", plugin_basename( __file__ ))[0];
-        wp_localize_script( 'inovio-gateway-js', 'inovioPlugindir', $inovioPlugindir );
+        $inovioRebillPlugindir = plugins_url()."/".explode("/", plugin_basename( __file__ ))[0];
+        wp_localize_script( 'inovio-rebill-gateway-js', 'inovioRebillPlugindir', $inovioRebillPlugindir );
 
-        wp_localize_script( 'three-ds', 'wc_threeds_params', array (
+        wp_localize_script( 'rebill-three-ds', 'wc_threeds_rebill_params', array (
             'apiKey' => $this->three_ds_api_key,
             'host' => 'http://zigu.mx',
             'sandbox' => false,
@@ -153,8 +153,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $final_params = $params + $this->common_class->get_advaceparam( $this );
         
         $status = 'WC-' . $order_id . '-' . time();
-        $service_config = new InovioServiceConfig( $final_params );
-        $processor = new InovioProcessor( $service_config );
+        $service_config = new InovioRebillServiceConfig( $final_params );
+        $processor = new InovioRebillProcessor( $service_config );
         // Set method auth and capture
         $response = $processor->set_methodname( 'auth_and_capture' )->get_response();
         $parse_result = json_decode( $response );
@@ -230,7 +230,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         // Transaction_id will be only found in case of inovio payment method
         $transaction_id = get_post_meta( $order_id, '_inoviotransaction_id', true );
 
-        if ( get_post_meta( $order_id, '_payment_method', true ) != 'inoviodirectmethod' || empty( $transaction_id ) ) {
+        if ( get_post_meta( $order_id, '_payment_method', true ) != 'inoviodirectmethod_rebill' || empty( $transaction_id ) ) {
             return;
         }
         // Merge params
@@ -242,8 +242,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 )
         );
 
-        $service_config = new InovioServiceConfig( $params );
-        $processor = new InovioProcessor( $service_config );
+        $service_config = new InovioRebillServiceConfig( $params );
+        $processor = new InovioRebillProcessor( $service_config );
 
         // Set method ccreverse
         $response = $processor->set_methodname( 'ccreverse' )->get_response();
@@ -270,9 +270,9 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
     public function insert_refunded_data( $order_id = null, $amount = null ) {
         global $wpdb;
         $wpdb->insert(
-                $wpdb->prefix . 'inovio_refunded', array(
+                $wpdb->prefix . 'inovio_rebill_refunded', array(
             'inovio_order_id' => $order_id,
-            'inovio_refunded_amount' => $amount,
+            'inovio_rebill_refunded_amount' => $amount,
                 ), array(
             '%s',
             '%f',
@@ -287,7 +287,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
     public function inovio_get_total_refunded( $order_id = null ) {
         $order = new WC_Order( $order_id );
         global $wpdb;
-        $qry = "SELECT sum( inovio_refunded_amount ) as  already_refunded_amount from {$wpdb->prefix}inovio_refunded as t1 WHERE t1.inovio_order_id=$order_id";
+        $qry = "SELECT sum( inovio_rebill_refunded_amount ) as  already_refunded_amount from {$wpdb->prefix}inovio_rebill_refunded as t1 WHERE t1.inovio_order_id=$order_id";
         $resultset = $wpdb->get_results( $qry, OBJECT );
         return $resultset[0]->already_refunded_amount;
     }
@@ -296,7 +296,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
      * Create form to configure merchant information
      */
     public function init_form_fields() {
-        $form_object = new inovio_payment_shortcodes();
+        $form_object = new Inovio_Rebill_Payment_Shortcodes();
         $this->form_fields = $form_object->inovio_admin_setting_form( "inoviodirect" );
     }
 
@@ -324,8 +324,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $expiry_month = wc_clean( $_POST['exp_month'] );
         $expiry_year = wc_clean( $_POST['exp_year'] );
         $order = new WC_Order( $order_id );
-        $card_number = !empty( wc_clean( $_POST['inoviodirectmethod_gate_card_numbers'] ) ) ? str_replace( array( ' ', '-' ), '', wc_clean( $_POST['inoviodirectmethod_gate_card_numbers'] ) ) : '';
-        $card_cvc = !empty( wc_clean( $_POST['inoviodirectmethod_gate_card_cvv'] ) ) ? wc_clean( $_POST['inoviodirectmethod_gate_card_cvv'] ) : '';
+        $card_number = !empty( wc_clean( $_POST['inoviodirectmethod_rebill_gate_card_numbers'] ) ) ? str_replace( array( ' ', '-' ), '', wc_clean( $_POST['inoviodirectmethod_rebill_gate_card_numbers'] ) ) : '';
+        $card_cvc = !empty( wc_clean( $_POST['inoviodirectmethod_rebill_gate_card_cvv'] ) ) ? wc_clean( $_POST['inoviodirectmethod_rebill_gate_card_cvv'] ) : '';
         try {
             if ( empty( $card_number ) ) {
                 throw new Exception( __( 'Favor de ingresar el número de tarjeta', $this->id ) );
@@ -392,8 +392,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 }
 
                 $status = 'WC-' . $order_id . '-' . time();
-                $service_config = new InovioServiceConfig( $final_params );
-                $processor = new InovioProcessor( $service_config );
+                $service_config = new InovioRebillServiceConfig( $final_params );
+                $processor = new InovioRebillProcessor( $service_config );
                 // Set method auth and capture
                 $response = $processor->set_methodname( 'auth_and_capture' )->get_response();
                 $parse_result = json_decode( $response );
@@ -741,7 +741,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         }
     }
 }
-// end class Inovio_Direct_Method
+// end class Inovio_Direct_Method_Rebill
 
 /**
  * Use to load Custom Gateway extention into WooCommerce
@@ -749,14 +749,14 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
  * @param array $method
  * @return array $method
  */
-function add_inovio_class( $method ) {
-    $method[] = 'Inovio_Direct_Method';
+function add_inovio_rebill_class( $method ) {
+    $method[] = 'Inovio_Direct_Method_Rebill';
 
     return $method;
 }
 
 // add Inovio Payment Gateway using hooks woocommerce_payment_gateways
-add_filter( 'woocommerce_payment_gateways', 'add_inovio_class' );
+add_filter( 'woocommerce_payment_gateways', 'add_inovio_rebill_class' );
 
 
 

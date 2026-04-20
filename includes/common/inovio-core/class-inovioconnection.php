@@ -1,13 +1,13 @@
 <?php
 /**
- * Class InovioConnection
+ * Class InovioRebillConnection
  *
- * InovioConnection assemble the Curl/API call request and
+ * InovioRebillConnection assemble the Curl/API call request and
  * parsing the returned response
  *
  * @package Inovio\Connection
  */
-class InovioConnection {
+class InovioRebillConnection {
 
 	/**
 	 * curl instance
@@ -140,4 +140,4 @@ class InovioConnection {
 		$this->headers     = array();
 	}
 
-} // end InovioConnection class
+} // end InovioRebillConnection class

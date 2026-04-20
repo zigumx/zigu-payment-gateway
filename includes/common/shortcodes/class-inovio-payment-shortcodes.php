@@ -11,12 +11,12 @@
  *
  * @author Inovio Payments
  */
-class inovio_payment_shortcodes {
+class Inovio_Rebill_Payment_Shortcodes {
 
 // Load hooks into constructor
     public function __construct() {
-        add_shortcode( 'direct_checkoutform', array( $this, 'inoviodirect_checkout_form' ) );
-        // add_shortcode( 'ach_inovio_checkoutform', array( $this, 'ach_inovio_checkout_form' ) );
+        add_shortcode( 'direct_checkoutform_rebill', array( $this, 'inoviodirect_checkout_form' ) );
+        // add_shortcode( 'ach_inovio_checkoutform_rebill', array( $this, 'ach_inovio_checkout_form' ) );
     }
 
     /**
@@ -292,14 +292,14 @@ class inovio_payment_shortcodes {
     public function inoviodirect_checkout_form() {
         $today = date( 'Y' );
         $start = date( 'Y' );
-        $html = '<fieldset class="inoviodirectmethod_gate_form">
-                <p class="form-row form-row-wide validate-required inoviodirectmethod_gate_card_number_wrap">
-                    <label for="inoviodirectmethod_gate_card_numbers">Número de tarjeta</label>
-                    <input class="input-text" name="inoviodirectmethod_gate_card_numbers" title="Please enter valid card no" id="inoviodirectmethod_gate_card_numbers"  pattern="^0[1-16]|[1-16]\d$" maxlength="16" size="16" type="text" required>
-                    <span id="inoviodirectmethod_gate_card_type_image"></span>
+        $html = '<fieldset class="inoviodirectmethod_rebill_gate_form">
+                <p class="form-row form-row-wide validate-required inoviodirectmethod_rebill_gate_card_number_wrap">
+                    <label for="inoviodirectmethod_rebill_gate_card_numbers">Número de tarjeta</label>
+                    <input class="input-text" name="inoviodirectmethod_rebill_gate_card_numbers" title="Please enter valid card no" id="inoviodirectmethod_rebill_gate_card_numbers"  pattern="^0[1-16]|[1-16]\d$" maxlength="16" size="16" type="text" required>
+                    <span id="inoviodirectmethod_rebill_gate_card_type_image"></span>
                 </p>
                 <p class="form-row form-row-first validate-required">
-                  <label for="inoviodirectmethod_gate_card_expiration">Fecha de expiración</label>
+                  <label for="inoviodirectmethod_rebill_gate_card_expiration">Fecha de expiración</label>
                 <select id="cc-exp-month" class="txt" name="exp_month">
                     <option value="01">Ene</option>
                     <option value="02">Feb</option>
@@ -322,14 +322,14 @@ class inovio_payment_shortcodes {
         $html .= '</select>
                 </p>
                 <p class="form-row form-row-last validate-required">
-                    <label for="inoviodirectmethod_gate_card_csc">Código de seguridad</label>
-                    <input type="password" class="input-text" id="inoviodirectmethod_gate_card_cvv" title="Please enter valid card security no"
-                        name="inoviodirectmethod_gate_card_cvv" maxlength="4" size="4" pattern="[0-9]+" required
+                    <label for="inoviodirectmethod_rebill_gate_card_csc">Código de seguridad</label>
+                    <input type="password" class="input-text" id="inoviodirectmethod_rebill_gate_card_cvv" title="Please enter valid card security no"
+                        name="inoviodirectmethod_rebill_gate_card_cvv" maxlength="4" size="4" pattern="[0-9]+" required
                     />
                 </p>
                 <div class="clear"></div>';
         $html .= '<p class="form-row form-row-last" style="display: none;">
-                <label for="inoviodirectmethod_gate_card_csc">Kount Session ID</label>
+                <label for="inoviodirectmethod_rebill_gate_card_csc">Kount Session ID</label>
                 <input type="text" class="input-text" id="kountSessionId"
                     title="Kount Session ID" name="KOUNT_SESSIONID"
                 />
@@ -345,21 +345,21 @@ class inovio_payment_shortcodes {
      * @return string $html
      */
     public function ach_inovio_checkout_form() {
-        $html = '<fieldset class="inoviodirectmethod_gate_form">
+        $html = '<fieldset class="inoviodirectmethod_rebill_gate_form">
                 <p class="form-row form-row-wide validate-required routing_number">
-                    <label for="ach_inovio_routing_number">Routing number</label>
-                    <input class="input-text" pattern="^0[1-9]|[1-9]\d$" name="ach_inovio_routing_number" title="Please enter valid routing number"
-                    id="ach_inovio_routing_number"   maxlength="9" size="9" type="text" required />
+                    <label for="ach_inovio_rebill_routing_number">Routing number</label>
+                    <input class="input-text" pattern="^0[1-9]|[1-9]\d$" name="ach_inovio_rebill_routing_number" title="Please enter valid routing number"
+                    id="ach_inovio_rebill_routing_number"   maxlength="9" size="9" type="text" required />
                     <span id="ach_routing_number_message"></span>
                 </p>
                 <p class="form-row validate-required ">
-                    <label for="ach_inovio_account_number">Account number</label>
-                    <input class="input-text" pattern="^0[1-18]|[1-18]\d$" name="ach_inovio_account_number" title="Please enter valid card no" id="ach_inovio_account_number"
+                    <label for="ach_inovio_rebill_account_number">Account number</label>
+                    <input class="input-text" pattern="^0[1-18]|[1-18]\d$" name="ach_inovio_rebill_account_number" title="Please enter valid card no" id="ach_inovio_rebill_account_number"
                         maxlength="18" size="18" type="text" required />
                 </p>
                 <p class="form-row validate-required ">
-                    <label for="ach_inovio_confirm_account_number">Confirm account number</label>
-                    <input class="input-text" pattern="^0[1-18]|[1-18]\d$" name="ach_inovio_confirm_account_number" title="Please enter valid card no" id="ach_inovio_confirm_account_number"
+                    <label for="ach_inovio_rebill_confirm_account_number">Confirm account number</label>
+                    <input class="input-text" pattern="^0[1-18]|[1-18]\d$" name="ach_inovio_rebill_confirm_account_number" title="Please enter valid card no" id="ach_inovio_rebill_confirm_account_number"
                         maxlength="18" size="18" type="text" required />
                          <span id="account_matched_message"></span>
                 </p>

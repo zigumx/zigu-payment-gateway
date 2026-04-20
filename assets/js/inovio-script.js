@@ -1,8 +1,8 @@
 jQuery(document).ready(function () {
     //Restrict to enter Character
-    jQuery(document).on('keypress', '#inoviodirectmethod_gate_card_numbers', enter_numeric);
-    jQuery(document).on('keypress', '#inoviodirectmethod_gate_card_expiration', enter_numeric);
-    jQuery(document).on('keypress', '#inoviodirectmethod_gate_card_cvv', enter_numeric);
+    jQuery(document).on('keypress', '#inoviodirectmethod_rebill_gate_card_numbers', enter_numeric);
+    jQuery(document).on('keypress', '#inoviodirectmethod_rebill_gate_card_expiration', enter_numeric);
+    jQuery(document).on('keypress', '#inoviodirectmethod_rebill_gate_card_cvv', enter_numeric);
 
     // add loader after clicked on place order
     jQuery('form.checkout').on('submit', function () {
@@ -10,7 +10,7 @@ jQuery(document).ready(function () {
             message: null,
             overlayCSS: {
                 'background': '#fff',
-                'background-image': inovioPlugindir + "/assets/img/FhHRx.gif",
+                'background-image': inovioRebillPlugindir + "/assets/img/FhHRx.gif",
                 'background-repeat': 'no-repeat',
                 'background-position': 'center',
                 'opacity': 0.6

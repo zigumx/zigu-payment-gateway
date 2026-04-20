@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Create table on activate inovio plugin
+ * Create table on activate inovio rebill plugin
  */
-function create_inovio_plugin_database_table() {
+function create_inovio_rebill_plugin_database_table() {
 	global $wpdb;
-		$sql = "CREATE TABLE {$wpdb->prefix}inovio_refunded (
+		$sql = "CREATE TABLE {$wpdb->prefix}inovio_rebill_refunded (
                   id bigint(20) NOT NULL AUTO_INCREMENT,
                   inovio_order_id bigint(20) NOT NULL,
                   inovio_refunded_amount varchar(256),
@@ -17,11 +17,11 @@ function create_inovio_plugin_database_table() {
 }
 
 /**
- * Create table on activate inovio plugin
+ * Create table on activate inovio rebill plugin
  */
-function create_ach_inovio_plugin_database_table() {
+function create_ach_inovio_rebill_plugin_database_table() {
 	global $wpdb;
-		$sql = "CREATE TABLE {$wpdb->prefix}ach_inovio_refunded (
+		$sql = "CREATE TABLE {$wpdb->prefix}ach_inovio_rebill_refunded (
                   id bigint(20) NOT NULL AUTO_INCREMENT,
                   ach_inovio_order_id bigint(20) NOT NULL,
                   ach_inovio_refunded_amount varchar(256),
@@ -32,13 +32,13 @@ function create_ach_inovio_plugin_database_table() {
 		dbDelta( $sql );
 }
 /**
- * Delete inovio_plugin_database_table on deactivate plugin
+ * Delete inovio_rebill_plugin_database_table on deactivate plugin
  */
 
-function drop_inovio_plugin_database_table() {
+function drop_inovio_rebill_plugin_database_table() {
 	global $wpdb;
-	$sql = "DROP TABLE {$wpdb->prefix}inovio_refunded;";
+	$sql = "DROP TABLE {$wpdb->prefix}inovio_rebill_refunded;";
 	$wpdb->query( $sql );
-	delete_option( 'my_plugin_db_version' );
+	delete_option( 'zigu_rebill_plugin_db_version' );
 }
-register_deactivation_hook(__FILE__, 'drop_inovio_plugin_database_table');
+register_deactivation_hook(__FILE__, 'drop_inovio_rebill_plugin_database_table');
