@@ -3,7 +3,7 @@
  * Plugin Name: Zigu MX Payment Gateway
  * Description: Zigu MX payment gateway provide payment solutions.
  * Author: Zigu MX Payments
- * Version: 6.2.4
+ * Version: 6.3.1
  * Author URI: https://zigu.mx/
  * Plugin URI: https://www.zigu.mx
  * License: GPLv2
@@ -21,6 +21,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/installer/inovio-plugin-database
 // Create table for refund on activate inovio plugin
 register_activation_hook( __FILE__, 'create_inovio_plugin_database_table' );
 // register_activation_hook( __FILE__, 'create_ach_inovio_plugin_database_table' );
+require plugin_dir_path( __FILE__ ) . 'includes/common/class-zigu-translator.php';
 require plugin_dir_path( __FILE__ ) . 'includes/common/class-common-inovio-payment.php';
 
 /**

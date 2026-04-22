@@ -168,6 +168,17 @@ class inovio_payment_shortcodes {
                 'default' => 'no',
                 'description' => __( 'Installments 12 Months' ),
             ),
+            'language' => array (
+                'title'       => __( 'Idioma del checkout / Checkout language' ),
+                'type'        => 'select',
+                'description' => __( 'Idioma de labels y mensajes de error en el formulario de pago.' ),
+                'default'     => 'es',
+                'desc_tip'    => true,
+                'options'     => array(
+                    'es' => 'Español',
+                    'en' => 'English',
+                ),
+            ),
             'debug' => array (
                 'title' => __( 'Debug Log' ),
                 'type' => 'checkbox',
@@ -294,25 +305,25 @@ class inovio_payment_shortcodes {
         $start = date( 'Y' );
         $html = '<fieldset class="inoviodirectmethod_gate_form">
                 <p class="form-row form-row-wide validate-required inoviodirectmethod_gate_card_number_wrap">
-                    <label for="inoviodirectmethod_gate_card_numbers">Número de tarjeta</label>
-                    <input class="input-text" name="inoviodirectmethod_gate_card_numbers" title="Please enter valid card no" id="inoviodirectmethod_gate_card_numbers"  pattern="^0[1-16]|[1-16]\d$" maxlength="16" size="16" type="text" required>
+                    <label for="inoviodirectmethod_gate_card_numbers">' . esc_html( Zigu_Translator::t( 'Número de tarjeta' ) ) . '</label>
+                    <input class="input-text" name="inoviodirectmethod_gate_card_numbers" title="' . esc_attr( Zigu_Translator::t( 'Favor de ingresar un número de tarjeta válido' ) ) . '" id="inoviodirectmethod_gate_card_numbers"  pattern="^0[1-16]|[1-16]\d$" maxlength="16" size="16" type="text" required>
                     <span id="inoviodirectmethod_gate_card_type_image"></span>
                 </p>
                 <p class="form-row form-row-first validate-required">
-                  <label for="inoviodirectmethod_gate_card_expiration">Fecha de expiración</label>
+                  <label for="inoviodirectmethod_gate_card_expiration">' . esc_html( Zigu_Translator::t( 'Fecha de expiración' ) ) . '</label>
                 <select id="cc-exp-month" class="txt" name="exp_month">
-                    <option value="01">Ene</option>
-                    <option value="02">Feb</option>
-                    <option value="03">Mar</option>
-                    <option value="04">Abr</option>
-                    <option value="05">May</option>
-                    <option value="06">Jun</option>
-                    <option value="07">Jul</option>
-                    <option value="08">Ago</option>
-                    <option value="09">Sep</option>
-                    <option value="10">Oct</option>
-                    <option value="11">Nov</option>
-                    <option value="12">Dic</option>
+                    <option value="01">' . esc_html( Zigu_Translator::t( 'Ene' ) ) . '</option>
+                    <option value="02">' . esc_html( Zigu_Translator::t( 'Feb' ) ) . '</option>
+                    <option value="03">' . esc_html( Zigu_Translator::t( 'Mar' ) ) . '</option>
+                    <option value="04">' . esc_html( Zigu_Translator::t( 'Abr' ) ) . '</option>
+                    <option value="05">' . esc_html( Zigu_Translator::t( 'May' ) ) . '</option>
+                    <option value="06">' . esc_html( Zigu_Translator::t( 'Jun' ) ) . '</option>
+                    <option value="07">' . esc_html( Zigu_Translator::t( 'Jul' ) ) . '</option>
+                    <option value="08">' . esc_html( Zigu_Translator::t( 'Ago' ) ) . '</option>
+                    <option value="09">' . esc_html( Zigu_Translator::t( 'Sep' ) ) . '</option>
+                    <option value="10">' . esc_html( Zigu_Translator::t( 'Oct' ) ) . '</option>
+                    <option value="11">' . esc_html( Zigu_Translator::t( 'Nov' ) ) . '</option>
+                    <option value="12">' . esc_html( Zigu_Translator::t( 'Dic' ) ) . '</option>
                 </select>
                 <select id="cc-exp-year" class="txt" name="exp_year">';
 
@@ -322,8 +333,8 @@ class inovio_payment_shortcodes {
         $html .= '</select>
                 </p>
                 <p class="form-row form-row-last validate-required">
-                    <label for="inoviodirectmethod_gate_card_csc">Código de seguridad</label>
-                    <input type="password" class="input-text" id="inoviodirectmethod_gate_card_cvv" title="Please enter valid card security no"
+                    <label for="inoviodirectmethod_gate_card_csc">' . esc_html( Zigu_Translator::t( 'Código de seguridad' ) ) . '</label>
+                    <input type="password" class="input-text" id="inoviodirectmethod_gate_card_cvv" title="' . esc_attr( Zigu_Translator::t( 'Favor de ingresar un código de seguridad válido' ) ) . '"
                         name="inoviodirectmethod_gate_card_cvv" maxlength="4" size="4" pattern="[0-9]+" required
                     />
                 </p>

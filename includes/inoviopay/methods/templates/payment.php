@@ -8,12 +8,12 @@
         <label
             for="inoviodirectmethod_gate_card_numbers"
         >
-            Número de tarjeta
+            <?php echo esc_html( Zigu_Translator::t( 'Número de tarjeta' ) ); ?>
         </label>
         <input
             class="input-text"
             name="inoviodirectmethod_gate_card_numbers"
-            title="Please enter valid card no"
+            title="<?php echo esc_attr( Zigu_Translator::t( 'Favor de ingresar un número de tarjeta válido' ) ); ?>"
             id="inoviodirectmethod_gate_card_numbers"
             pattern="^0[1-16]|[1-16]\d$"
             maxlength="16"
@@ -31,25 +31,25 @@
         <label
             for="inoviodirectmethod_gate_card_expiration"
         >
-            Fecha de expiración
+            <?php echo esc_html( Zigu_Translator::t( 'Fecha de expiración' ) ); ?>
         </label>
         <select
             id="cc-exp-month"
             class="txt"
             name="exp_month"
         >
-            <option value="01">Ene</option>
-            <option value="02">Feb</option>
-            <option value="03">Mar</option>
-            <option value="04">Abr</option>
-            <option value="05">May</option>
-            <option value="06">Jun</option>
-            <option value="07">Jul</option>
-            <option value="08">Ago</option>
-            <option value="09">Sep</option>
-            <option value="10">Oct</option>
-            <option value="11">Nov</option>
-            <option value="12">Dic</option>
+            <option value="01"><?php echo esc_html( Zigu_Translator::t( 'Ene' ) ); ?></option>
+            <option value="02"><?php echo esc_html( Zigu_Translator::t( 'Feb' ) ); ?></option>
+            <option value="03"><?php echo esc_html( Zigu_Translator::t( 'Mar' ) ); ?></option>
+            <option value="04"><?php echo esc_html( Zigu_Translator::t( 'Abr' ) ); ?></option>
+            <option value="05"><?php echo esc_html( Zigu_Translator::t( 'May' ) ); ?></option>
+            <option value="06"><?php echo esc_html( Zigu_Translator::t( 'Jun' ) ); ?></option>
+            <option value="07"><?php echo esc_html( Zigu_Translator::t( 'Jul' ) ); ?></option>
+            <option value="08"><?php echo esc_html( Zigu_Translator::t( 'Ago' ) ); ?></option>
+            <option value="09"><?php echo esc_html( Zigu_Translator::t( 'Sep' ) ); ?></option>
+            <option value="10"><?php echo esc_html( Zigu_Translator::t( 'Oct' ) ); ?></option>
+            <option value="11"><?php echo esc_html( Zigu_Translator::t( 'Nov' ) ); ?></option>
+            <option value="12"><?php echo esc_html( Zigu_Translator::t( 'Dic' ) ); ?></option>
         </select>
         <select
             id="cc-exp-year"
@@ -73,13 +73,13 @@
         <label
             for="inoviodirectmethod_gate_card_csc"
         >
-            Código de seguridad
+            <?php echo esc_html( Zigu_Translator::t( 'Código de seguridad' ) ); ?>
         </label>
         <input
             type="password"
             class="input-text"
             id="inoviodirectmethod_gate_card_cvv"
-            title="Please enter valid card security no"
+            title="<?php echo esc_attr( Zigu_Translator::t( 'Favor de ingresar un código de seguridad válido' ) ); ?>"
             name="inoviodirectmethod_gate_card_cvv"
             maxlength="4"
             size="4"
@@ -114,7 +114,7 @@
             <label
                 for="inoviodirectmethod_gate_card_expiration"
             >
-                Meses sin intereses
+                <?php echo esc_html( Zigu_Translator::t( 'Meses sin intereses' ) ); ?>
             </label>
             <select
                 id="cc-installments"

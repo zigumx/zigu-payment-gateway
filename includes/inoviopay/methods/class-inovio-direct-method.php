@@ -49,6 +49,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $this->req_username = $this->get_option( 'req_username' );
         $this->req_password = $this->get_option( 'req_password' );
         $this->merch_acct_id = $this->get_option( 'merch_acct_id' );
+        $this->language = $this->get_option( 'language', 'es' );
+        Zigu_Translator::set_language( $this->language );
         $this->debug = $this->get_option('debug');
         $this->debug = 'yes' == $this->get_option( 'debug', 'no' );
         $this->req_product_id = $this->get_option( 'req_product_id' );
@@ -328,13 +330,13 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $card_cvc = !empty( wc_clean( $_POST['inoviodirectmethod_gate_card_cvv'] ) ) ? wc_clean( $_POST['inoviodirectmethod_gate_card_cvv'] ) : '';
         try {
             if ( empty( $card_number ) ) {
-                throw new Exception( __( 'Favor de ingresar el número de tarjeta', $this->id ) );
+                throw new Exception( Zigu_Translator::t( 'Favor de ingresar el número de tarjeta' ) );
             } elseif ( empty( $expiry_month ) || empty( $expiry_year ) ) {
-                throw new Exception( __( 'Favor de ingresar la fecha de expiración', $this->id ) );
+                throw new Exception( Zigu_Translator::t( 'Favor de ingresar la fecha de expiración' ) );
             } elseif ( $this->common_class->validate_expirydate( $expiry_year . $expiry_month) == false ) {
-                throw new Exception( __( 'Favor de ingresar la fecha de expiración', $this->id ) );
+                throw new Exception( Zigu_Translator::t( 'Favor de ingresar la fecha de expiración' ) );
             } elseif ( empty( $card_cvc ) ) { // check expiry date
-                throw new Exception( __( 'Favor de ingresar el código de seguridad', $this->id ) );
+                throw new Exception( Zigu_Translator::t( 'Favor de ingresar el código de seguridad' ) );
             }
             // Restrict product's quantity
             if ( $this->common_class->restrict_quantity( $this ) == false ) {
@@ -366,8 +368,8 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 $isAuth = $this->common_class->merchant_authorization( $this );
             }
             if ( $isAuth == false ) {
-                // throw new Exception('Usuario no autorizado'); 
-                throw new Exception( __( 'Please contact to service provider', $this->id ) );
+                // throw new Exception('Usuario no autorizado');
+                throw new Exception( Zigu_Translator::t( 'Please contact to service provider' ) );
             } else {
                 // throw new Exception('autorizado');
                 $sanitize_post = wc_clean( $_POST );
@@ -388,7 +390,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                 $three_ds_min_price = (float) $this->three_ds_min_price;
 
                 if ($three_ds_min_price < $total && !isset($final_params['p3ds_cavv'])) {
-                    throw new Exception( __( 'Error Missing 3D secure', $this->id ) );
+                    throw new Exception( Zigu_Translator::t( 'Error Missing 3D secure' ) );
                 }
 
                 $status = 'WC-' . $order_id . '-' . time();
@@ -410,12 +412,12 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
                 // check card length
                 if ( isset( $parse_result->REF_FIELD ) && 'pmt_numb' == strtolower( $parse_result->REF_FIELD ) ) {
-                    throw new Exception( __( 'Error Invalid Credit Card Length', $this->id ) );
+                    throw new Exception( Zigu_Translator::t( 'Error Invalid Credit Card Length' ) );
                 }
 
                 // check card expiry date
                 if ( isset( $parse_result->REF_FIELD ) && 'pmt_expiry' == strtolower( $parse_result->REF_FIELD ) ) {
-                    throw new Exception( __( 'Error Invalid Card Expiry date', $this->id ) );
+                    throw new Exception( Zigu_Translator::t( 'Error Invalid Card Expiry date' ) );
                 }
                 // throw new Exception($response);
                 // throw new Exception('pre '.$parse_result->TRANS_STATUS_NAME.isset( $parse_result->TRANS_STATUS_NAME ));
@@ -461,254 +463,271 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     $estado_error = "";
                     if ($parse_result->PROCESSOR_RESPONSE != 0) {
                         switch ($parse_result->PROCESSOR_RESPONSE) {
-                            case "0": 
-                                $estado_error = "APROBADA";
+                            case "0":
+                                $estado_error = Zigu_Translator::t( "APROBADA" );
                                 break;
-                            case "2": 
-                                $estado_error = "DECLINADA: favor de contactar a su banco";
+                            case "2":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: favor de contactar a su banco" );
                                 break;
-                            case "4": 
-                                $estado_error = "DECLINADA: tarjeta bloqueada por el banco emisor";
+                            case "4":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: tarjeta bloqueada por el banco emisor" );
                                 break;
-                            case "5": 
-                                $estado_error = "DECLINADA: por el banco emisor";
+                            case "5":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: por el banco emisor" );
                                 break;
-                            case "12": 
-                                $estado_error = "DECLINADA: Transacción inválida";
+                            case "12":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: Transacción inválida" );
                                 break;
-                            case "14": 
-                                $estado_error = "DECLINADA: número de tarjeta no válido";
+                            case "14":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: número de tarjeta no válido" );
                                 break;
-                            case "41": 
-                                $estado_error = "DECLINADA: tarjeta reportada como perdida";
+                            case "41":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: tarjeta reportada como perdida" );
                                 break;
-                            case "43": 
-                                $estado_error = "DECLINADA: tarjeta reportada como robada";
+                            case "43":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: tarjeta reportada como robada" );
                                 break;
-                            case "51": 
-                                $estado_error = "DECLINADA: fondos insuficientes";
+                            case "51":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: fondos insuficientes" );
                                 break;
-                            case "54": 
-                                $estado_error = "DECLINADA: tarjeta caducada";
+                            case "54":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: tarjeta caducada" );
                                 break;
-                            case "56": 
-                                $estado_error = "DECLINADA: tarjeta no registrada";
+                            case "56":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: tarjeta no registrada" );
                                 break;
-                            case "57": 
-                                $estado_error = "DECLINADA: transacción no permitida por la tarjeta";
+                            case "57":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: transacción no permitida por la tarjeta" );
                                 break;
-                            case "61": 
-                                $estado_error = "DECLINADA: transacción excede el límite permitido por su tarjeta";
+                            case "61":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: transacción excede el límite permitido por su tarjeta" );
                                 break;
-                            case "62": 
-                                $estado_error = "DECLINADA: tarjeta restringida";
+                            case "62":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: tarjeta restringida" );
                                 break;
-                            case "65": 
-                                $estado_error = "DECLINADA: transacción excede la frecuencia permitida por su tarjeta";
+                            case "65":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: transacción excede la frecuencia permitida por su tarjeta" );
                                 break;
-                            case "82": 
-                                $estado_error = "DECLINADA: transacción detenida por el módulo de seguridad de su tarjeta";
+                            case "82":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: transacción detenida por el módulo de seguridad de su tarjeta" );
                                 break;
-                            case "87": 
-                                $estado_error = "DECLINADA: datos inválidos";
+                            case "87":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: datos inválidos" );
                                 break;
-                            case "89": 
-                                $estado_error = "DECLINADA: servicio inválido";
+                            case "89":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: servicio inválido" );
                                 break;
-                            case "91": 
-                                $estado_error = "DECLINADA: no se logró contactar al banco emisor";
+                            case "91":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: no se logró contactar al banco emisor" );
                                 break;
-                            case "N0": 
-                                $estado_error = "DECLINADA: no fue posible autorizar la transacción";
+                            case "N0":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: no fue posible autorizar la transacción" );
                                 break;
-                            case "N7": 
-                                $estado_error = "DECLINADA: transacción no autorizada por el banco emisor de la tarjeta";
+                            case "N7":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: transacción no autorizada por el banco emisor de la tarjeta" );
                                 break;
-                            case "O6": 
-                                $estado_error = "DECLINADA: datos inválidos";
+                            case "O6":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: datos inválidos" );
                                 break;
-                            case "P1": 
-                                $estado_error = "DECLINADA: transacción excede el límite permitido por su tarjeta";
+                            case "P1":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: transacción excede el límite permitido por su tarjeta" );
                                 break;
-                            case "Q2": 
-                                $estado_error = "DECLINADA: transacción no permitida por la tarjeta";
+                            case "Q2":
+                                $estado_error = Zigu_Translator::t( "DECLINADA: transacción no permitida por la tarjeta" );
                                 break;
                         }
                     } else {
                         switch ($parse_result->SERVICE_RESPONSE) {
                             case "100":
-                                $estado_error = "Autorizada";
+                                $estado_error = Zigu_Translator::t( "Autorizada" );
                                 break;
                             case "101":
-                                $estado_error = "Servicio disponible";
+                                $estado_error = Zigu_Translator::t( "Servicio disponible" );
                                 break;
                             case "150":
-                                $estado_error = "Producto no encontrado";
+                                $estado_error = Zigu_Translator::t( "Producto no encontrado" );
                                 break;
                             case "152":
-                                $estado_error = "Tipo de producto no encontrado";
+                                $estado_error = Zigu_Translator::t( "Tipo de producto no encontrado" );
                                 break;
                             case "155":
-                                $estado_error = "Divisa no configurada";
+                                $estado_error = Zigu_Translator::t( "Divisa no configurada" );
                                 break;
                             case "190":
-                                $estado_error = "Configuración inválida de producto";
+                                $estado_error = Zigu_Translator::t( "Configuración inválida de producto" );
                                 break;
                             case "192":
-                                $estado_error = "Producto no activo";
+                                $estado_error = Zigu_Translator::t( "Producto no activo" );
                                 break;
                             case "500":
-                                $estado_error = "No tiene cuenta configurada";
+                                $estado_error = Zigu_Translator::t( "No tiene cuenta configurada" );
                                 break;
                             case "501":
-                                $estado_error = "Cliente no encontrado";
+                                $estado_error = Zigu_Translator::t( "Cliente no encontrado" );
                                 break;
                             case "502":
-                                $estado_error = "Error en la transacción";
+                                $estado_error = Zigu_Translator::t( "Error en la transacción" );
                                 break;
                             case "503":
-                                $estado_error = "Servicio no disponible";
+                                $estado_error = Zigu_Translator::t( "Servicio no disponible" );
                                 break;
                             case "505":
-                                $estado_error = "Orden ajustada a cero";
+                                $estado_error = Zigu_Translator::t( "Orden ajustada a cero" );
                                 break;
                             case "506":
-                                $estado_error = "Monto a cobrar mayor al monto de la orden";
+                                $estado_error = Zigu_Translator::t( "Monto a cobrar mayor al monto de la orden" );
                                 break;
                             case "507":
-                                $estado_error = "Orden capturada completa";
+                                $estado_error = Zigu_Translator::t( "Orden capturada completa" );
                                 break;
                             case "510":
-                                $estado_error = "Orden devuelta";
+                                $estado_error = Zigu_Translator::t( "Orden devuelta" );
                                 break;
                             case "511":
-                                $estado_error = "Orden reportada como contra-cargo";
+                                $estado_error = Zigu_Translator::t( "Orden reportada como contra-cargo" );
                                 break;
                             case "512":
-                                $estado_error = "Orden no encontrada";
+                                $estado_error = Zigu_Translator::t( "Orden no encontrada" );
                                 break;
                             case "515":
-                                $estado_error = "Orden reembolsada";
+                                $estado_error = Zigu_Translator::t( "Orden reembolsada" );
                                 break;
                             case "516":
-                                $estado_error = "Reembolso mayor al valor de la orden";
+                                $estado_error = Zigu_Translator::t( "Reembolso mayor al valor de la orden" );
                                 break;
                             case "518":
-                                $estado_error = "Missing required field";
+                                $estado_error = Zigu_Translator::t( "Missing required field" );
                                 break;
                             case "519":
-                                $estado_error = "Missing Trial Descriptor";
+                                $estado_error = Zigu_Translator::t( "Missing Trial Descriptor" );
                                 break;
                             case "520":
-                                $estado_error = "Divisa no aceptada";
+                                $estado_error = Zigu_Translator::t( "Divisa no aceptada" );
                                 break;
                             case "522":
-                                $estado_error = "Marca de tarjeta no aceptada";
+                                $estado_error = Zigu_Translator::t( "Marca de tarjeta no aceptada" );
                                 break;
                             case "525":
-                                $estado_error = "Batch Closed: Please credit";
+                                $estado_error = Zigu_Translator::t( "Batch Closed: Please credit" );
                                 break;
                             case "530":
-                                $estado_error = "Downstream Processor Unavailable";
+                                $estado_error = Zigu_Translator::t( "Downstream Processor Unavailable" );
                                 break;
                             case "536":
-                                $estado_error = "Order not settled: Please reverse";
+                                $estado_error = Zigu_Translator::t( "Order not settled: Please reverse" );
                                 break;
                             case "555":
-                                $estado_error = "Call Center";
+                                $estado_error = Zigu_Translator::t( "Call Center" );
                                 break;
                             case "560":
-                                $estado_error = "Invalid Service Action";
+                                $estado_error = Zigu_Translator::t( "Invalid Service Action" );
                                 break;
                             case "565":
-                                $estado_error = "Monto no válido";
+                                $estado_error = Zigu_Translator::t( "Monto no válido" );
                                 break;
                             case "570":
-                                $estado_error = "Marca de tarjeta no válida";
+                                $estado_error = Zigu_Translator::t( "Marca de tarjeta no válida" );
                                 break;
                             case "580":
-                                $estado_error = "Solicitud no admitida";
+                                $estado_error = Zigu_Translator::t( "Solicitud no admitida" );
                                 break;
                             case "600":
-                                $estado_error = "Declinada por el banco emisor. Favor de contactar a su banco.";
+                                $estado_error = Zigu_Translator::t( "Declinada por el banco emisor. Favor de contactar a su banco." );
                                 break;
                             case "601":
-                                $estado_error = "Transacción detenida por módulo anti-fraude. Esta tarjeta está temporalmente bloqueada en este sitio, intente nuevamente mañana.";
+                                $estado_error = Zigu_Translator::t( "Transacción detenida por módulo anti-fraude. Esta tarjeta está temporalmente bloqueada en este sitio, intente nuevamente mañana." );
                                 break;
                             case "603":
-                                $estado_error = "Transacción fraudulenta";
+                                $estado_error = Zigu_Translator::t( "Transacción fraudulenta" );
                                 break;
                             case "605":
-                                $estado_error = "Tarjeta reportada como robada";
+                                $estado_error = Zigu_Translator::t( "Tarjeta reportada como robada" );
                                 break;
                             case "610":
-                                $estado_error = "Recoger tarjeta";
+                                $estado_error = Zigu_Translator::t( "Recoger tarjeta" );
                                 break;
                             case "615":
-                                $estado_error = "Tarjeta reportada como perdida";
+                                $estado_error = Zigu_Translator::t( "Tarjeta reportada como perdida" );
                                 break;
                             case "620":
-                                $estado_error = "CVV inválido";
+                                $estado_error = Zigu_Translator::t( "CVV inválido" );
                                 break;
                             case "621":
-                                $estado_error = "CVV fallido";
+                                $estado_error = Zigu_Translator::t( "CVV fallido" );
                                 break;
                             case "622":
-                                $estado_error = "Validación de dirección fallida";
+                                $estado_error = Zigu_Translator::t( "Validación de dirección fallida" );
                                 break;
                             case "623":
-                                $estado_error = "Validación de dirección fallida";
+                                $estado_error = Zigu_Translator::t( "Validación de dirección fallida" );
                                 break;
                             case "624":
-                                $estado_error = "Tarjeta vencida";
+                                $estado_error = Zigu_Translator::t( "Tarjeta vencida" );
                                 break;
                             case "625":
-                                $estado_error = "Uso excesivo";
+                                $estado_error = Zigu_Translator::t( "Uso excesivo" );
                                 break;
                             case "630":
-                                $estado_error = "Número de tarjeta inválido";
+                                $estado_error = Zigu_Translator::t( "Número de tarjeta inválido" );
                                 break;
                             case "635":
-                                $estado_error = "Fondos insuficientes";
+                                $estado_error = Zigu_Translator::t( "Fondos insuficientes" );
                                 break;
                             case "640":
-                                $estado_error = "Reintentar";
+                                $estado_error = Zigu_Translator::t( "Reintentar" );
                                 break;
                             case "650":
-                                $estado_error = "RECHAZADA - No intente nuevamente";
+                                $estado_error = Zigu_Translator::t( "RECHAZADA - No intente nuevamente" );
                                 break;
                             case "660":
-                                $estado_error = "Aprobación parcial";
+                                $estado_error = Zigu_Translator::t( "Aprobación parcial" );
                                 break;
                             case "680":
-                                $estado_error = "Transacción duplicada";
+                                $estado_error = Zigu_Translator::t( "Transacción duplicada" );
                                 break;
                             case "685":
-                                $estado_error = "Orden duplicada";
+                                $estado_error = Zigu_Translator::t( "Orden duplicada" );
                                 break;
                             case "690":
-                                $estado_error = "Active Membership Exists";
+                                $estado_error = Zigu_Translator::t( "Active Membership Exists" );
                                 break;
                             case "692":
-                                $estado_error = "Invalid Rebill Product";
+                                $estado_error = Zigu_Translator::t( "Invalid Rebill Product" );
                                 break;
                             case "695":
-                                $estado_error = "Site Username Unavailable";
+                                $estado_error = Zigu_Translator::t( "Site Username Unavailable" );
                                 break;
                             case "697":
-                                $estado_error = "Membresía no activa";
+                                $estado_error = Zigu_Translator::t( "Membresía no activa" );
                                 break;
-    
+
                             case "698":
-                                $estado_error = "Membresía no encontrada";
+                                $estado_error = Zigu_Translator::t( "Membresía no encontrada" );
                                 break;
                             case "699":
-                                $estado_error = "Membresía no está configurada como suscripción";
+                                $estado_error = Zigu_Translator::t( "Membresía no está configurada como suscripción" );
                                 break;
                         }
                     }
-                    
-                    
+
+                    // Fallback when the response code is not in either switch: prefer the
+                    // processor's human-readable text, fall back to a translated generic
+                    // message that includes the raw codes so debugging is possible.
+                    if ( empty( $estado_error ) ) {
+                        if ( ! empty( $parse_result->PROCESSOR_RESPONSE_TEXT ) ) {
+                            $estado_error = $parse_result->PROCESSOR_RESPONSE_TEXT;
+                        } elseif ( ! empty( $parse_result->SERVICE_RESPONSE_TEXT ) ) {
+                            $estado_error = $parse_result->SERVICE_RESPONSE_TEXT;
+                        } elseif ( ! empty( $parse_result->API_ADVICE ) ) {
+                            $estado_error = $parse_result->API_ADVICE;
+                        } elseif ( ! empty( $parse_result->SERVICE_ADVICE ) ) {
+                            $estado_error = $parse_result->SERVICE_ADVICE;
+                        } else {
+                            $processor_code = isset( $parse_result->PROCESSOR_RESPONSE ) ? $parse_result->PROCESSOR_RESPONSE : 'n/a';
+                            $service_code   = isset( $parse_result->SERVICE_RESPONSE ) ? $parse_result->SERVICE_RESPONSE : 'n/a';
+                            $estado_error   = Zigu_Translator::t( 'Error desconocido' ) . ' (PROCESSOR_RESPONSE=' . $processor_code . ', SERVICE_RESPONSE=' . $service_code . ')';
+                        }
+                    }
 
                     // Add note
                     $order->add_order_note(sprintf( __( 'Transaction Failed, TransactionID: %s, Estado: %s', 'wc_iveri'), $parse_result->TRANS_ID, $estado_error ) );
@@ -728,10 +747,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                     // throw new Exception($response);
 
                     throw new Exception(
-                        __(
-                            'Transacción fallida, estado de la transacción: '. $estado_error
-                            , $this->id
-                        )
+                        Zigu_Translator::t( 'Transacción fallida, estado de la transacción: ' ) . $estado_error
                     );
                 }
             }

@@ -1,3 +1,12 @@
+### 6.3.1
+
+- minor fixes and improvements
+
+### 6.3
+
+- add checkout language selector (Español / English) in the gateway settings, default Spanish
+- translate checkout form labels, placeholders, month abbreviations, validation errors, and processor/service response messages
+
 ### 6.2.4
 
 - add `merch_acct_id` setting and include it in gateway requests (fixes "No merchant account configured")
