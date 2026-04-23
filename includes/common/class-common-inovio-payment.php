@@ -285,10 +285,10 @@ class class_common_inovio_payment {
         if( $post_data["payment_method"] == "achinoviomethod" ){
             unset( $params["pmt_expiry"] );
         }
-        if ( strtoupper( get_woocommerce_currency() ) === 'USD' ) {
-            $transaction_type = isset( $post_data['transaction_type'] ) ? $post_data['transaction_type'] : '';
-            $params['request_initiator'] = ( $transaction_type === '' || $transaction_type === 'initial' ) ? 'C' : 'M';
-        }
+        // if ( strtoupper( get_woocommerce_currency() ) === 'USD' ) {
+        //     $transaction_type = isset( $post_data['transaction_type'] ) ? $post_data['transaction_type'] : '';
+        //     $params['request_initiator'] = ( $transaction_type === '' || $transaction_type === 'initial' ) ? 'C' : 'M';
+        // }
         return $params;
     }
 }
