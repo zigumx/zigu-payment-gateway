@@ -171,22 +171,22 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         ) {
             // Add order note
             $order->add_order_note( ' Billing Direct API Payment completed and Transaction Id:' . $parse_result->PO_ID );
-            add_post_meta( $order->id, '_inoviotransaction_id', $parse_result->PO_ID, true );
+            $order->update_meta_data( '_inoviotransaction_id', $parse_result->PO_ID );
             // Payment complete add PO_ID as transaction id in post_meta table
             $order->payment_complete( $parse_result->PO_ID );
-        
+
             // Add token Id in as note
             $order->add_order_note( 'Token ID:-' . $parse_result->PO_ID );
-        
+
         } elseif ( !empty( $parse_result->API_ADVICE ) || empty( $parse_result->SERVICE_ADVICE ) ) {
-        
+
             $status = 'ERROR';
-        
+
             // Add note
             if( isset( $parse_result->PO_ID ) ) {
                 $order->add_order_note(sprintf( __( 'TransactionID %s', 'wc_iveri'), $parse_result->PO_ID ) );
-                
-                    add_post_meta($order_id, '_inoviotransaction_id', $parse_result->PO_ID, true);
+
+                    $order->update_meta_data( '_inoviotransaction_id', $parse_result->PO_ID );
                     // Payment failed
             $order->update_status('failed', sprintf(__('Card payment failed. Payment was rejected due to an error%s', $this->id)));
             }
@@ -218,28 +218,55 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         if ( !$order_id ) {
             throw new Exception( __( 'Invalid order ID.', 'woocommerce' ) );
         }
-        $action = wc_clean( $_REQUEST['action'] );
+        $action = wc_clean( $_REQUEST['action'] ?? '' );
         // Add partial refunded amount with inovio for total refund
         if ( !empty( $action ) && $action === 'woocommerce_refund_line_items' ) {
             $this->insert_refunded_data( $order_id, $amount );
         }
-        $order_status = wc_clean( $_REQUEST['order_status'] );
+        $order_status = wc_clean( $_REQUEST['order_status'] ?? '' );
 
         if ( !empty( $order_status ) && $order_status === 'wc-refunded' ) {
 
             $amount = $order->get_total() - $this->inovio_get_total_refunded( $order_id );
         }
-        // Transaction_id will be only found in case of inovio payment method
-        $transaction_id = get_post_meta( $order_id, '_inoviotransaction_id', true );
+        // Read payment method and transaction id via order API so it works with and without HPOS.
+        $payment_method = $order->get_payment_method();
+        $transaction_id = $order->get_meta( '_inoviotransaction_id' );
+        if ( empty( $transaction_id ) ) {
+            $transaction_id = get_post_meta( $order_id, '_inoviotransaction_id', true );
+        }
 
-        if ( get_post_meta( $order_id, '_payment_method', true ) != 'inoviodirectmethod' || empty( $transaction_id ) ) {
-            return;
+        $diag_metas = array(
+            '_inoviotransaction_id (order)'  => $order->get_meta( '_inoviotransaction_id' ),
+            '_inoviotransaction_id (post)'   => get_post_meta( $order_id, '_inoviotransaction_id', true ),
+            'TRANS_ID'                       => $order->get_meta( 'TRANS_ID' ),
+            'CUST_ID'                        => $order->get_meta( 'CUST_ID' ),
+            'PMT_L4'                         => $order->get_meta( 'PMT_L4' ),
+            'REQ_ID'                         => $order->get_meta( 'REQ_ID' ),
+            'TRANS_STATUS_NAME'              => $order->get_meta( 'TRANS_STATUS_NAME' ),
+            'uniqid'                         => $order->get_meta( 'uniqid' ),
+            '_inovio_gateway_scheduled_response' => $order->get_meta( '_inovio_gateway_scheduled_response' ),
+            'wc_transaction_id'              => $order->get_transaction_id(),
+        );
+        $this->common_class->inovio_logger(
+            'process_refund start: order_id=' . $order_id
+            . ' payment_method=' . $payment_method
+            . ' transaction_id=' . $transaction_id
+            . ' amount=' . $amount
+            . ' diag=' . wp_json_encode( $diag_metas ),
+            $this
+        );
+
+        if ( $payment_method !== 'inoviodirectmethod' ) {
+            return new WP_Error( 'inovio_refund_wrong_gateway', 'Refund aborted: order payment method is "' . $payment_method . '", expected "inoviodirectmethod".' );
+        }
+        if ( empty( $transaction_id ) ) {
+            return new WP_Error( 'inovio_refund_missing_transaction', 'Refund aborted: order has no _inoviotransaction_id meta.' );
         }
         // Merge params
         $params = array_merge(
                 $this->common_class->merchant_credential( $this ), array (
                 'request_ref_po_id' => $transaction_id,
-                'credit_on_fail' => 1,
                 'li_value_1' => $amount,
                 )
         );
@@ -247,8 +274,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $service_config = new InovioServiceConfig( $params );
         $processor = new InovioProcessor( $service_config );
 
-        // Set method ccreverse
-        $response = $processor->set_methodname( 'ccreverse' )->get_response();
+        $response = $processor->set_methodname( 'cc_credit' )->get_response();
         $parse_result = json_decode($response);
         if ( !empty( $parse_result->PO_ID ) && !empty( $parse_result->PO_ID ) && $parse_result->PO_ID == $transaction_id ) {
             $order->add_order_note( 'Inovio Payment refund completed. Refund Transaction ID:-' . $parse_result->PO_ID );
@@ -432,7 +458,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
                     // Add order note
                     $order->add_order_note( ' Billing Direct API Payment completed and Order Id:' . $parse_result->PO_ID );
-                    add_post_meta( $order->id, '_inoviotransaction_id', $parse_result->PO_ID, true );
+                    $order->update_meta_data( '_inoviotransaction_id', $parse_result->PO_ID );
                     // Payment complete add PO_ID as transaction id in post_meta table
                     $order->payment_complete( $parse_result->PO_ID );
 
