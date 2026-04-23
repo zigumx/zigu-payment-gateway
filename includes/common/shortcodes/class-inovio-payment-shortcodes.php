@@ -179,6 +179,18 @@ class inovio_payment_shortcodes {
                     'en' => 'English',
                 ),
             ),
+            'transaction_type' => array (
+                'title'       => Zigu_Translator::t( 'Tipo de transacción' ),
+                'type'        => 'select',
+                'description' => Zigu_Translator::t( 'Determina cómo se envía el parámetro request_initiator al gateway (solo aplica para USD).' ),
+                'default'     => 'straight_sale',
+                'desc_tip'    => true,
+                'options'     => array(
+                    'straight_sale' => Zigu_Translator::t( 'Venta directa' ),
+                    'initial'       => Zigu_Translator::t( 'Inicial' ),
+                    'rebill'        => Zigu_Translator::t( 'Recurrente' ),
+                ),
+            ),
             'debug' => array (
                 'title' => __( 'Debug Log' ),
                 'type' => 'checkbox',

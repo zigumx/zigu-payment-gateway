@@ -225,7 +225,7 @@ class class_common_inovio_payment {
     * @param  array $post_data
     */
 
-    public function get_order_params( $order_id, $post_data, $expiry_date = "" ) {
+    public function get_order_params( $order_id, $post_data, $expiry_date = "", $options = null ) {
         $order = new WC_Order( $order_id );
         $pmt_key_or_routing_number = [];
         $three_ds = [];
@@ -285,10 +285,14 @@ class class_common_inovio_payment {
         if( $post_data["payment_method"] == "achinoviomethod" ){
             unset( $params["pmt_expiry"] );
         }
-        // if ( strtoupper( get_woocommerce_currency() ) === 'USD' ) {
-        //     $transaction_type = isset( $post_data['transaction_type'] ) ? $post_data['transaction_type'] : '';
-        //     $params['request_initiator'] = ( $transaction_type === '' || $transaction_type === 'initial' ) ? 'C' : 'M';
-        // }
+        if ( strtoupper( get_woocommerce_currency() ) === 'USD' ) {
+            $transaction_type = ( $options && isset( $options->transaction_type ) ) ? $options->transaction_type : 'straight_sale';
+            if ( $transaction_type === 'initial' ) {
+                $params['request_initiator'] = 'C';
+            } elseif ( $transaction_type === 'rebill' ) {
+                $params['request_initiator'] = 'M';
+            }
+        }
         return $params;
     }
 }

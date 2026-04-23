@@ -135,6 +135,13 @@ class Zigu_Translator {
         'Membresía no activa'                       => 'Membership not active',
         'Membresía no encontrada'                   => 'Membership not found',
         'Membresía no está configurada como suscripción' => 'Membership is not configured as a subscription',
+
+        // Admin settings: transaction type
+        'Tipo de transacción' => 'Transaction type',
+        'Determina cómo se envía el parámetro request_initiator al gateway (solo aplica para USD).' => 'Determines how the request_initiator parameter is sent to the gateway (only applies to USD).',
+        'Venta directa' => 'Straight Sale',
+        'Inicial'       => 'Initial',
+        'Recurrente'    => 'Rebill',
     );
 
     public static function set_language( $lang ) {

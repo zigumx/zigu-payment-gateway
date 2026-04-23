@@ -34,11 +34,15 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
                                 'multiple_subscriptions',
                             );
          
+        // To set admin section
+        $this->init_settings();
+        // Set language before init_form_fields so admin labels render in the chosen language
+        $this->language = $this->get_option( 'language', 'es' );
+        Zigu_Translator::set_language( $this->language );
+
         // To set admin section form field
         $this->init_form_fields();
 
-        // To set admin section
-        $this->init_settings();
         // Get user define values from admin
         $this->enabled = $this->get_option( 'enabled' );
         $this->title = $this->get_option( 'title' );
@@ -49,8 +53,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $this->req_username = $this->get_option( 'req_username' );
         $this->req_password = $this->get_option( 'req_password' );
         $this->merch_acct_id = $this->get_option( 'merch_acct_id' );
-        $this->language = $this->get_option( 'language', 'es' );
-        Zigu_Translator::set_language( $this->language );
+        $this->transaction_type = $this->get_option( 'transaction_type', 'straight_sale' );
         $this->debug = $this->get_option('debug');
         $this->debug = 'yes' == $this->get_option( 'debug', 'no' );
         $this->req_product_id = $this->get_option( 'req_product_id' );
@@ -399,7 +402,7 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             } else {
                 // throw new Exception('autorizado');
                 $sanitize_post = wc_clean( $_POST );
-                $order_param = $this->common_class->get_order_params( $order_id, $sanitize_post, $expiry_month.$expiry_year );
+                $order_param = $this->common_class->get_order_params( $order_id, $sanitize_post, $expiry_month.$expiry_year, $this );
                 // Combine array parameters to call auth_and_capture
                 $authParams = [];
                 if ($isAmex) {
