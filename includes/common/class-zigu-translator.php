@@ -142,6 +142,19 @@ class Zigu_Translator {
         'Venta directa' => 'Straight Sale',
         'Inicial'       => 'Initial',
         'Recurrente'    => 'Rebill',
+
+        // Admin settings: accepted card brands
+        'Aceptar Visa'            => 'Accept Visa',
+        'Aceptar MasterCard'      => 'Accept MasterCard',
+        'Aceptar American Express' => 'Accept American Express',
+        'Permite pagar con tarjetas Visa en el checkout.'             => 'Allow paying with Visa cards at checkout.',
+        'Permite pagar con tarjetas MasterCard en el checkout.'       => 'Allow paying with MasterCard cards at checkout.',
+        'Permite pagar con tarjetas American Express en el checkout.' => 'Allow paying with American Express cards at checkout.',
+
+        // Card brand validation (checkout)
+        'No está permitido el pago con Visa en esta tienda'             => 'Payments with Visa are not allowed in this store',
+        'No está permitido el pago con MasterCard en esta tienda'       => 'Payments with MasterCard are not allowed in this store',
+        'No está permitido el pago con American Express en esta tienda' => 'Payments with American Express are not allowed in this store',
     );
 
     public static function set_language( $lang ) {
