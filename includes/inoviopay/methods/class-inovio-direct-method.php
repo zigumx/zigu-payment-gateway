@@ -54,6 +54,10 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         $this->req_password = $this->get_option( 'req_password' );
         $this->merch_acct_id = $this->get_option( 'merch_acct_id' );
         $this->transaction_type = $this->get_option( 'transaction_type', 'straight_sale' );
+        // Marcas de tarjeta aceptadas en el checkout
+        $this->accept_visa       = 'yes' == $this->get_option( 'accept_visa', 'yes' );
+        $this->accept_mastercard = 'yes' == $this->get_option( 'accept_mastercard', 'yes' );
+        $this->accept_amex       = 'yes' == $this->get_option( 'accept_amex', 'no' );
         $this->debug = $this->get_option('debug');
         $this->debug = 'yes' == $this->get_option( 'debug', 'no' );
         $this->req_product_id = $this->get_option( 'req_product_id' );
@@ -104,8 +108,13 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             return;
         }
         
+        // Cache-bust por fecha de modificación del archivo (evita servir JS viejo en caché)
+        $plugin_base = explode( "/", plugin_basename( __file__ ) )[0];
+        $inovio_js_ver = @filemtime( WP_PLUGIN_DIR . '/' . $plugin_base . '/assets/js/inovio-script.js' );
+        $inovio_js_ver = $inovio_js_ver ? $inovio_js_ver : '6.6.0';
+
         wp_enqueue_script(
-            'inovio-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array ( 'jquery' )
+            'inovio-gateway-js', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/inovio-script.js', array ( 'jquery' ), $inovio_js_ver
         );
         wp_enqueue_script(
             'zigu-three-ds', plugins_url()."/".explode("/", plugin_basename( __file__ ))[0] . '/assets/js/zigu-three-ds.js', array ( 'jquery' )
@@ -116,6 +125,20 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
 
         $inovioPlugindir = plugins_url()."/".explode("/", plugin_basename( __file__ ))[0];
         wp_localize_script( 'inovio-gateway-js', 'inovioPlugindir', $inovioPlugindir );
+
+        // Marcas de tarjeta aceptadas + mensajes traducidos por marca para validación en el cliente
+        wp_localize_script( 'inovio-gateway-js', 'ziguCardConfig', array (
+            'brands'   => array (
+                'visa'       => $this->accept_visa ? '1' : '0',
+                'mastercard' => $this->accept_mastercard ? '1' : '0',
+                'amex'       => $this->accept_amex ? '1' : '0',
+            ),
+            'messages' => array (
+                'visa'       => Zigu_Translator::t( 'No está permitido el pago con Visa en esta tienda' ),
+                'mastercard' => Zigu_Translator::t( 'No está permitido el pago con MasterCard en esta tienda' ),
+                'amex'       => Zigu_Translator::t( 'No está permitido el pago con American Express en esta tienda' ),
+            ),
+        ) );
 
         wp_localize_script( 'three-ds', 'wc_threeds_params', array (
             'apiKey' => $this->three_ds_api_key,
@@ -367,6 +390,24 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
             } elseif ( empty( $card_cvc ) ) { // check expiry date
                 throw new Exception( Zigu_Translator::t( 'Favor de ingresar el código de seguridad' ) );
             }
+
+            // Validate accepted card brands (server-side backstop for the client-side check).
+            // Amex -> starts with 3 or 15 digits; Visa -> 4; MasterCard -> 5 (or 2, 2-series).
+            $first_digit = substr( $card_number, 0, 1 );
+            if ( $first_digit === '3' || strlen( $card_number ) === 15 ) {
+                if ( ! $this->accept_amex ) {
+                    throw new Exception( Zigu_Translator::t( 'No está permitido el pago con American Express en esta tienda' ) );
+                }
+            } elseif ( $first_digit === '4' ) {
+                if ( ! $this->accept_visa ) {
+                    throw new Exception( Zigu_Translator::t( 'No está permitido el pago con Visa en esta tienda' ) );
+                }
+            } elseif ( $first_digit === '5' || $first_digit === '2' ) {
+                if ( ! $this->accept_mastercard ) {
+                    throw new Exception( Zigu_Translator::t( 'No está permitido el pago con MasterCard en esta tienda' ) );
+                }
+            }
+
             // Restrict product's quantity
             if ( $this->common_class->restrict_quantity( $this ) == false ) {
                 global $woocommerce;
