@@ -154,7 +154,7 @@ class Zigu_Translator {
         // Card brand validation (checkout)
         'No está permitido el pago con Visa en esta tienda'             => 'Payments with Visa are not allowed in this store',
         'No está permitido el pago con MasterCard en esta tienda'       => 'Payments with MasterCard are not allowed in this store',
-        'No está permitido el pago con American Express en esta tienda' => 'Payments with American Express are not allowed in this store',
+        'No está permitido el pago con American Express en esta tienda' => 'AMEX NOT ACCEPTED',
     );
 
     public static function set_language( $lang ) {

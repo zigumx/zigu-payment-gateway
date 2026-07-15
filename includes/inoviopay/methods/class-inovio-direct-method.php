@@ -94,7 +94,37 @@ class Inovio_Direct_Method extends WC_Payment_Gateway {
         } else {
             add_action( 'woocommerce_update_options_payment_gateways', array ( &$this, 'process_admin_options' ) );
         }
-        $this->_maybe_register_callback_in_subscriptions(); 
+        $this->_maybe_register_callback_in_subscriptions();
+    }
+
+    /**
+     * Build the gateway icon from the accepted card brands.
+     *
+     * Shows one logo per accepted brand (Visa / MasterCard / Amex), using the
+     * per-brand images split from inovio-logo.png. Only brands enabled in the
+     * settings are rendered.
+     *
+     * @access public
+     * @return string
+     */
+    public function get_icon() {
+        $img_base = plugins_url() . "/" . explode( "/", plugin_basename( __file__ ) )[0] . '/assets/img/';
+
+        $brands = array(
+            'visa'       => array( 'accepted' => $this->accept_visa,       'file' => 'inovio-logo-visa.png',       'alt' => 'Visa' ),
+            'mastercard' => array( 'accepted' => $this->accept_mastercard, 'file' => 'inovio-logo-mastercard.png', 'alt' => 'MasterCard' ),
+            'amex'       => array( 'accepted' => $this->accept_amex,        'file' => 'inovio-logo-amex.png',        'alt' => 'American Express' ),
+        );
+
+        $icon = '';
+        foreach ( $brands as $brand ) {
+            if ( ! $brand['accepted'] ) {
+                continue;
+            }
+            $icon .= '<img src="' . esc_url( $img_base . $brand['file'] ) . '" alt="' . esc_attr( $brand['alt'] ) . '" style="height:24px;width:auto;margin-left:4px;display:inline-block;vertical-align:middle;" />';
+        }
+
+        return apply_filters( 'woocommerce_gateway_icon', $icon, $this->id );
     }
 
 
